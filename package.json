@@ -1,0 +1,19 @@
+{
+  "name": "thridha-labs",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Thridha Labs — platform root scripts",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,magenta \"npm run backend\" \"npm run frontend\"",
+    "backend": "python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 --app-dir backend",
+    "frontend": "npm --prefix web run dev",
+    "frontend:build": "npm --prefix web run build",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && python -m pytest",
+    "test:frontend": "npm --prefix web run test",
+    "admin:create": "cd backend && python -m app.cli.create_admin"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}

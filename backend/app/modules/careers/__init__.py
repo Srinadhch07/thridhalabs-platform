@@ -1,0 +1,1 @@
+"""Careers module — public careers page + admin opportunity management."""

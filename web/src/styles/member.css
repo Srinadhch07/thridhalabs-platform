@@ -1,0 +1,837 @@
+/* ============================================================
+   Member portal — presentational layer.
+
+   Scoped entirely under `.member-*` class names so the public site
+   and the Admin Panel (which keep using the `.admin-*` and `.site-*`
+   shells) are never affected. Every color/space/radius value resolves
+   to the shared design tokens in tokens.css, so runtime branding
+   overrides keep applying. Layout only — no business logic.
+   ============================================================ */
+
+/* --- shell -------------------------------------------------- */
+
+.member-shell {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.member-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  height: 100vh;
+  padding: var(--space-5);
+  border-right: 1px solid var(--line);
+  background: var(--bg-2);
+  overflow-y: auto;
+}
+
+/* --- brand -------------------------------------------------- */
+
+.member-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.member-brand__mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+  color: var(--color-primary);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.member-brand__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-brand__name {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.member-brand__area {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.member-brand:hover .member-brand__name {
+  color: var(--color-primary);
+}
+
+/* --- identity card ------------------------------------------ */
+
+.member-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.member-identity__meta {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-identity__name {
+  color: var(--color-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-identity__id {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* --- navigation --------------------------------------------- */
+
+.member-nav__list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member-nav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 10px var(--space-3);
+  border: 1px solid transparent;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.member-nav__link:hover {
+  background: var(--surface);
+  color: var(--color-text);
+}
+
+.member-nav__link.is-active {
+  border-left-color: var(--color-primary);
+  background: var(--surface-hover);
+  color: var(--color-primary);
+}
+
+.member-nav__icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.member-nav__sep {
+  margin: var(--space-2) 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.member-nav__link--muted {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* --- main column -------------------------------------------- */
+
+.member-main-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.member-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-hud);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.member-topbar__spacer {
+  flex: 1;
+}
+
+.member-topbar__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.member-topbar__name {
+  max-width: 220px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-menu-toggle {
+  display: none;
+}
+
+.member-main {
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-8);
+}
+
+.member-main:focus {
+  outline: none;
+}
+
+/* --- page entry animation ----------------------------------- */
+
+.member-page {
+  animation: member-rise var(--dur) var(--ease-out) both;
+}
+
+@keyframes member-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- page header -------------------------------------------- */
+
+.member-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.member-page-header__main {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.member-page-header__title {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.02em;
+}
+
+.member-page-header__desc {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.member-page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --- cards -------------------------------------------------- */
+
+.member-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-2);
+}
+
+.member-card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.member-card--interactive {
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.member-card--interactive:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--border));
+  transform: translateY(-2px);
+}
+
+.member-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.member-card__title {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.member-card__desc {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* --- layout helpers ----------------------------------------- */
+
+.member-grid {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.member-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.member-stack {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.member-form {
+  max-width: 860px;
+}
+
+.member-divider {
+  height: 1px;
+  border: 0;
+  margin: var(--space-4) 0;
+  background: var(--line);
+}
+
+/* --- meta list (label / value rows) ------------------------- */
+
+.member-meta {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.member-meta__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.member-meta__row:last-child {
+  border-bottom: 0;
+}
+
+.member-meta__row dt {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.member-meta__row dd {
+  margin: 0;
+  text-align: right;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.member-meta--stacked .member-meta__row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.member-meta--stacked .member-meta__row dd {
+  text-align: left;
+}
+
+/* --- tags --------------------------------------------------- */
+
+.member-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+/* --- dashboard ---------------------------------------------- */
+
+.member-profile-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.member-profile-head__meta {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.member-profile-head__name {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-profile-head__sub {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.member-completion {
+  border-color: color-mix(in srgb, var(--color-primary) 42%, var(--border));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-primary) 9%, transparent),
+      transparent 62%
+    ),
+    var(--bg-2);
+}
+
+.member-completion__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.member-completion__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* --- profile ------------------------------------------------ */
+
+.member-profile-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-2);
+}
+
+.member-profile-hero__meta {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.member-profile-hero__name {
+  margin: 0;
+  font-size: var(--fs-lg);
+  letter-spacing: -0.02em;
+}
+
+.member-profile-hero__sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.member-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.member-field__label {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.member-picture {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.member-picture__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --- account ------------------------------------------------ */
+
+.member-account-signout {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* --- empty state -------------------------------------------- */
+
+.member-empty {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.member-empty__title {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+}
+
+.member-empty__body {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+/* --- password input ----------------------------------------- */
+
+.member-password {
+  position: relative;
+}
+
+.member-password .text-input {
+  padding-right: 68px;
+}
+
+.member-password__toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+
+.member-password__toggle:hover {
+  color: var(--color-primary);
+  background: var(--surface);
+}
+
+/* --- avatar ------------------------------------------------- */
+
+.member-avatar {
+  --avatar-size: 40px;
+  display: grid;
+  place-items: center;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--bg-3);
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.member-avatar--sm {
+  --avatar-size: 30px;
+  font-size: var(--fs-xs);
+}
+
+.member-avatar--lg {
+  --avatar-size: 64px;
+  font-size: var(--fs-md);
+}
+
+.member-avatar--xl {
+  --avatar-size: 92px;
+  font-size: var(--fs-lg);
+}
+
+.member-avatar--accent {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 18%, var(--bg-3));
+  color: var(--color-accent);
+}
+
+/* --- auth (login + setup) ----------------------------------- */
+
+.member-auth {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-4);
+  background:
+    radial-gradient(
+      120% 70% at 50% -10%,
+      color-mix(in srgb, var(--color-primary) 10%, transparent),
+      transparent 60%
+    ),
+    var(--color-background);
+}
+
+.member-auth__panel {
+  width: min(440px, 100%);
+  display: grid;
+  gap: var(--space-5);
+}
+
+.member-auth__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.member-auth__card {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.member-auth__title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  letter-spacing: -0.02em;
+}
+
+.member-auth__lead {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.member-auth__form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.member-auth__submit {
+  display: grid;
+}
+
+.member-auth__submit .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.member-auth__footer {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.member-auth__stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* --- responsive --------------------------------------------- */
+
+.member-backdrop {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .member-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .member-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(300px, 86vw);
+    height: 100dvh;
+    z-index: var(--z-overlay);
+    transform: translateX(-102%);
+    box-shadow: 24px 0 64px rgba(0, 0, 0, 0.45);
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .member-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .member-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-overlay) - 1);
+    background: rgba(4, 6, 12, 0.62);
+    backdrop-filter: blur(2px);
+    animation: member-fade var(--dur-fast) var(--ease) both;
+  }
+
+  @keyframes member-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .member-menu-toggle {
+    display: inline-flex;
+  }
+
+  .member-main {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+
+  .member-grid--2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .member-topbar {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .member-topbar__name {
+    display: none;
+  }
+
+  .member-main {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+  }
+
+  .member-page-header {
+    margin-bottom: var(--space-5);
+  }
+
+  .member-meta__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .member-meta__row dd {
+    text-align: left;
+  }
+
+  .member-profile-hero {
+    padding: var(--space-4);
+  }
+}
+
+/* --- motion preferences ------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .member-page {
+    animation: none;
+  }
+
+  .member-sidebar {
+    transition: none;
+  }
+}

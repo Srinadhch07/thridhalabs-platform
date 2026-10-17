@@ -1,0 +1,9 @@
+/** Skip-to-content link for keyboard and assistive-technology users. */
+
+export function SkipLink() {
+  return (
+    <a className="skip-link" href="#main-content">
+      Skip to main content
+    </a>
+  )
+}

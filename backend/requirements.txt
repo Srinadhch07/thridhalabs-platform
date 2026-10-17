@@ -1,0 +1,34 @@
+# --- web framework / server ---
+fastapi==0.121.2
+uvicorn[standard]==0.41.0
+
+# --- mongodb ---
+motor==3.7.1
+pymongo==4.18.2
+
+# --- configuration / validation ---
+pydantic==2.12.4
+pydantic-settings>=2.6.0,<3
+email-validator==2.3.0
+
+# --- authentication (Phase 2) ---
+bcrypt==5.0.0
+PyJWT==2.10.1
+
+# --- storage + media (Phase 3) ---
+boto3==1.43.89
+Pillow==12.3.0
+
+# --- certificates (PDF + QR generation) ---
+reportlab==4.4.4
+qrcode==8.2
+
+# --- authenticated encryption for at-rest secrets (Groq AI settings) ---
+cryptography==50.0.2
+
+# --- tests ---
+pytest==9.0.1
+pytest-asyncio==1.4.0
+httpx==0.28.1
+pypdf==6.14.2
+opencv-python-headless==5.0.0.93

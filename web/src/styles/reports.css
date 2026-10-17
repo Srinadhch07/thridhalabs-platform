@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Project Progress Reports
+   Member report authoring/history and the admin review detail. Member project
+   cards and chips reuse the shared member/activity styles; this file only adds
+   what is specific to progress reports.
+   ========================================================================== */
+
+/* ---------- report lists ---------- */
+
+.report-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.report-card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-2);
+}
+
+.report-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.report-card__meta {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.report-card__desc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.report-card__feedback {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--warn);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.report-card__links {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.report-card__links-label {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.report-card__links a {
+  overflow-wrap: anywhere;
+}
+
+.report-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ---------- review history ---------- */
+
+.report-history {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line-2);
+}
+
+.report-history__label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.report-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.report-history__item {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.report-history__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.report-history__meta {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.report-history__feedback {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--line);
+  background: var(--bg-2);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- authoring form ---------- */
+
+.report-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.report-links {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.report-links__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.report-links__row .text-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- admin review detail ---------- */
+
+.report-detail {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-width: 0;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 560px) {
+  .report-links__row {
+    flex-wrap: wrap;
+  }
+
+  .report-links__row .text-input {
+    min-width: 60%;
+  }
+}
