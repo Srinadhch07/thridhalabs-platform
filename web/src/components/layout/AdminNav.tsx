@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { to: '/admin/reports', label: 'Progress reports', end: false },
   { to: '/admin/certifications', label: 'Certifications', end: false },
   { to: '/admin/certificates', label: 'Certificates', end: false },
+  { to: '/admin/activity-certificates', label: 'Activity certificates', end: false },
   { to: '/admin/media', label: 'Media', end: false },
   { to: '/admin/settings', label: 'Settings', end: false },
   { to: '/admin/branding', label: 'Branding', end: false },

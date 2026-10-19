@@ -116,24 +116,20 @@ def _pdf_filename(certificate_id: str) -> str:
 
 
 async def _brand_context() -> dict:
-    """Best-effort brand colours + logo for the PDF. Never fails issuance."""
+    """Best-effort brand name + logo for the certificate. Never fails issuance.
+
+    The certificate uses its own fixed ivory-and-gold palette, so the runtime
+    brand colours are intentionally not forwarded to the renderer; only the
+    brand name (wordmark) and the existing uploaded logo are reused.
+    """
     context: dict = {
         "brand_name": "Thridha Labs",
-        "brand_primary": "#4f46e5",
-        "brand_secondary": "#0ea5e9",
-        "brand_text": "#0f172a",
-        "brand_background": "#ffffff",
         "logo_png": None,
     }
     branding = await branding_repository.get()
     if branding is None:
         return context
     context["brand_name"] = get_settings().APP_NAME
-    colors = branding.colors
-    context["brand_primary"] = colors.primary
-    context["brand_secondary"] = colors.secondary
-    context["brand_text"] = colors.text
-    context["brand_background"] = colors.background
     logo_id = branding.media.logo
     if logo_id:
         try:

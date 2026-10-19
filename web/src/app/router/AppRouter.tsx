@@ -29,6 +29,7 @@ import ProjectsPage from '../../pages/public/ProjectsPage'
 import PublicMemberPage from '../../pages/public/PublicMemberPage'
 import PublicWorkPage from '../../pages/public/PublicWorkPage'
 import VerifyCertificatePage from '../../pages/public/VerifyCertificatePage'
+import VerifyActivityCertificatePage from '../../pages/public/VerifyActivityCertificatePage'
 import TestimonialsPage from '../../pages/public/TestimonialsPage'
 import AdminHomePage from '../../pages/admin/AdminHomePage'
 import AdminLoginPage from '../../pages/admin/AdminLoginPage'
@@ -56,6 +57,7 @@ import AdminWorkDetailPage from '../../pages/admin/AdminWorkDetailPage'
 import AdminReportsPage from '../../pages/admin/AdminReportsPage'
 import AdminReportDetailPage from '../../pages/admin/AdminReportDetailPage'
 import AdminCertificatesPage from '../../pages/admin/AdminCertificatesPage'
+import AdminActivityCertificatesPage from '../../pages/admin/AdminActivityCertificatesPage'
 import AdminAiSettingsPage from '../../pages/admin/ai/AdminAiSettingsPage'
 import AdminAiSummariesPage from '../../pages/admin/ai/AdminAiSummariesPage'
 import AdminNotFoundPage from '../../pages/admin/AdminNotFoundPage'
@@ -90,6 +92,10 @@ export function AppRouter() {
         <Route path="/members/:memberId" element={<PublicMemberPage />} />
         <Route path="/members/:memberId/works/:slug" element={<PublicWorkPage />} />
         <Route path="/verify-certificate/:certificateId" element={<VerifyCertificatePage />} />
+        <Route
+          path="/verify-activity-certificate/:certificateId"
+          element={<VerifyActivityCertificatePage />}
+        />
         <Route path="/404" element={<NotFoundPage />} />
       </Route>
 
@@ -122,6 +128,7 @@ export function AppRouter() {
         <Route path="certifications" element={<AdminCertificationsPage />} />
         <Route path="certifications/:requestId" element={<AdminCertificationDetailPage />} />
         <Route path="certificates" element={<AdminCertificatesPage />} />
+        <Route path="activity-certificates" element={<AdminActivityCertificatesPage />} />
         <Route path="account" element={<AdminAccountPage />} />
         <Route path="*" element={<AdminNotFoundPage />} />
       </Route>

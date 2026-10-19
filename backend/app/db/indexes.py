@@ -184,6 +184,37 @@ async def ensure_indexes(force: bool = False) -> None:
         [("member_id", pymongo.ASCENDING), ("created_at", pymongo.DESCENDING)]
     )
 
+    # Activity certificates (separate credential from Work Recognition
+    # certificates — own collections, never touches `certificates`).
+    #   - certificate_id is the global public identifier.
+    #   - (activity_id, member_id, award_key) is the atomic guard against issuing
+    #     the same award twice to a recipient while allowing distinct awards.
+    await db.activity_certificates.create_index("certificate_id", unique=True)
+    await db.activity_certificates.create_index(
+        [
+            ("activity_id", pymongo.ASCENDING),
+            ("member_id", pymongo.ASCENDING),
+            ("award_key", pymongo.ASCENDING),
+        ],
+        unique=True,
+    )
+    await db.activity_certificates.create_index(
+        [("activity_id", pymongo.ASCENDING), ("issued_at", pymongo.DESCENDING)]
+    )
+    await db.activity_certificates.create_index(
+        [("member_id", pymongo.ASCENDING), ("created_at", pymongo.DESCENDING)]
+    )
+    await db.activity_certificates.create_index("status")
+    await db.activity_certificates.create_index(
+        [("activity_id", pymongo.ASCENDING), ("status", pymongo.ASCENDING)]
+    )
+    # Append-only audit history for activity certificates.
+    await db.activity_certificate_audit.create_index(
+        [("certificate_id", pymongo.ASCENDING), ("created_at", pymongo.DESCENDING)]
+    )
+    # The single editable activity-certificate template document.
+    await db.activity_certificate_templates.create_index("singleton", unique=True)
+
     # Project progress reports.
     # - client_request_id is the idempotency guard: at most one report per
     #   (member, client-supplied request id), so a retried submission returns
@@ -231,5 +262,6 @@ async def ensure_indexes(force: bool = False) -> None:
     log.info(
         "Database indexes ensured (admins, media, settings, branding, clients, "
         "projects, testimonials, careers, members, works, certifications, "
-        "certificates, activities, progress reports, ai summaries)"
+        "certificates, activity certificates, activities, progress reports, "
+        "ai summaries)"
     )

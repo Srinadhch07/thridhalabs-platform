@@ -33,6 +33,15 @@ from app.modules.certifications.router import router as certifications_router
 from app.modules.certificates.admin_router import router as certificates_admin_router
 from app.modules.certificates.public import router as certificates_public_router
 from app.modules.certificates.router import router as certificates_router
+from app.modules.activity_certificates.admin_router import (
+    router as activity_certificates_admin_router,
+)
+from app.modules.activity_certificates.public import (
+    router as activity_certificates_public_router,
+)
+from app.modules.activity_certificates.router import (
+    router as activity_certificates_router,
+)
 from app.modules.clients.public import router as clients_public_router
 from app.modules.clients.router import router as clients_router
 from app.modules.media.public import router as media_public_router
@@ -149,6 +158,9 @@ def create_app() -> FastAPI:
     # Certificates: issuance, verification, download, delivery.
     app.include_router(certificates_router, prefix=settings.API_PREFIX)
     app.include_router(certificates_admin_router, prefix=settings.API_PREFIX)
+    # Activity certificates: separate subsystem for programmes/hackathons.
+    app.include_router(activity_certificates_router, prefix=settings.API_PREFIX)
+    app.include_router(activity_certificates_admin_router, prefix=settings.API_PREFIX)
     # Public content APIs
     app.include_router(settings_public_router, prefix=settings.API_PREFIX)
     app.include_router(branding_public_router, prefix=settings.API_PREFIX)
@@ -161,6 +173,7 @@ def create_app() -> FastAPI:
     app.include_router(works_public_router, prefix=settings.API_PREFIX)
     app.include_router(works_contributions_router, prefix=settings.API_PREFIX)
     app.include_router(certificates_public_router, prefix=settings.API_PREFIX)
+    app.include_router(activity_certificates_public_router, prefix=settings.API_PREFIX)
     app.include_router(activities_public_router, prefix=settings.API_PREFIX)
 
     # Top-level SEO documents (no /api prefix).

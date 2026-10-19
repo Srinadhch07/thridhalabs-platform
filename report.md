@@ -230,3 +230,334 @@ suites stayed green.
 - Add the six-theme render to a visual regression harness once browser
   automation is available, so `text-wrap` and section-rhythm changes can be
   screenshot-compared.
+
+---
+
+# Certificate PDF — Redesign
+
+## Objective
+
+Replace the certificate PDF with a **premium landscape ivory-and-gold
+certificate**: an editorial content column on the left and a dedicated QR
+verification column on the right. The verification system, storage, QR
+generation and issuance flow are **reused unchanged** — only the renderer was
+redesigned. **No signature or signatory block** is drawn (by design).
+
+## Design
+
+- **Page:** A4 landscape (`841.89 × 595.28 pt`), warm ivory paper.
+- **Fixed palette** (deliberately independent of runtime brand colours, so the
+  certificate reads identically in every deployment):
+
+  | Token | Hex | Use |
+  | --- | --- | --- |
+  | ivory | `#F8F3EA` | paper background |
+  | charcoal | `#18202A` | primary text |
+  | gold | `#B38A4B` | accent (divider, date marker) |
+  | fine gold | `#D7B77E` | frame + decorative line-work |
+  | muted | `#6D675F` | secondary / fine print |
+
+- **Regions**
+  - A fine **double hairline frame** (≈6 mm inset) with restrained
+    concentric-arc gold line-work in the bottom-left and top-right corners.
+  - **Left editorial column:** existing logo + `THRIDHA LABS` wordmark,
+    display-serif heading, the member name (dominant), a thin gold divider, a
+    short recognition line, and the frozen work title.
+  - **Right verification column**: a vertical gold rule with an endpoint marker,
+  the QR code on a white quiet zone, a `Verify Certificate` label, the issue
+  date with a gold calendar marker, and the certificate id.
+  - Footer: `OFFICIAL DIGITAL CERTIFICATE` (left) and `THRIDHA LABS` (right),
+  above the existing scope disclaimer retained as restrained fine print.
+
+## Files changed
+
+| # | File | Change |
+| - | --- | --- |
+| 1 | `backend/app/modules/certificates/pdf.py` | Renderer **rewritten** — fixed palette, layout geometry, best-effort Unicode font resolution with base-14 fallback, wrap/fit helpers, frame + corner line-work, brand wordmark, verification column, footer, tracked-text helper, and the scope fine print. `render_certificate_pdf` no longer takes brand colours. |
+| 2 | `backend/app/modules/certificates/service.py` | `_brand_context()` simplified to return only `brand_name` + `logo_png` (the palette is now fixed in the renderer). |
+| 3 | `backend/tests/test_certificate_pdf.py` | **New** — pure-renderer layout regression tests (see below). |
+| 4 | `report.md` | This section. |
+
+`globals.css`, the Admin Panel and the Member Portal were **not** touched.
+
+## Defect found & fixed during the redesign
+
+**Leaked letter-spacing (`Tc`).** The tracked-text helper set character spacing
+inside a ReportLab text object and never reset it. Per the PDF spec `Tc` lives in
+the shared graphics/text state, so it **leaked into every later plain
+`drawString`/`drawCentredString`**. Real glyph widths were then wider than what
+`_wrap`/`_fit_size` had measured: the fine-print disclaimer overflowed the frame
+and ran to the page edge (~x 837 of 841.89 pt), and long work titles crossed the
+verification divider.
+
+**Fix:** the tracked-text helper now wraps its text object in a
+`saveState()`/`restoreState()` (`q`/`Q`) pair, confining the `Tc` so it cannot
+affect subsequent text. This single fix cleared both symptoms.
+
+## Verification (programmatic)
+
+There is **no browser automation, and no image viewer available to the agent** in
+this environment, so the redesign was verified **programmatically**, not by eye:
+
+- **Raster + pixel analysis** (pypdfium2 installed to a *temp* directory, not
+  added to the project): ink extents measured in PDF coordinates.
+- **Content-stream inspection** (`pypdf`): confirmed every `Tc` now sits inside a
+  balanced `q`/`Q` pair.
+- **Text extraction** (`pypdf`): the certificate id is present in the page text.
+- **QR decode** (`cv2`): the embedded QR decodes to the exact public
+  verification URL.
+
+Four stress cases were generated — **normal**, **long name**, **long title**,
+**long id** — and all four report: **1 page**, QR decodes to the verification
+URL, id present in text, **zero ink pixels outside the frame** (no overflow), and
+**no title crossing the divider**.
+
+> **Honest limitation:** this is *measurement-based* verification, not a
+> human/visual review. Colours, spacing and "does it look premium" were validated
+> analytically (palette constants, geometry, ink bounds), not by a screenshot.
+
+## Tests
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Renderer regression (new) | `pytest tests/test_certificate_pdf.py` | **4 passed** |
+| Certificate integration (existing) | `pytest tests/test_certificates.py` | **34 passed** |
+| Combined | `pytest tests/test_certificate_pdf.py tests/test_certificates.py` | **38 passed** |
+
+The new tests guard: single landscape page + frozen fields, **absence of any
+signature language**, the **`Tc`-confinement invariant**, and that the scope
+disclaimer wraps within the content width. `test_ai_summaries.py` was **not** run
+(it hangs in this environment); it is unrelated to certificates.
+
+# Certificate PDF — Logo & Wordmark Refinement
+
+## Objective
+
+Tighten the certificate's top-left brand header only: render the **exact current
+official logo**, fix the logo/wordmark **alignment**, and set the
+`THRIDHA LABS` **wordmark** in **Times New Roman**. No other region, font, or
+behaviour was changed.
+
+## Logo source (identified, not hardcoded)
+
+- The website shows its logo from the **branding singleton** in Mongo:
+  `branding.media.logo` → media id `6ad33b2df300f676d1e185ad`. The same asset
+  backs `logo_light`, `favicon` and `og_image`; only `logo_dark` differs. The web
+  header renders this same `branding.media.logo`.
+- The certificate already reached the **same** asset — `service._brand_context()`
+  resolves `branding.media.logo` to bytes and passes it as `logo_png`. So the
+  renderer consumes the *live configured* logo; **no path or id is hardcoded**, so
+  a re-uploaded branding logo flows through automatically.
+- Asset inspected: `216 × 216` **WebP, RGBA, transparent background** (a circular
+  "T" emblem). Nothing was recreated or approximated.
+
+## Changes
+
+| # | File | Change |
+| - | --- | --- |
+| 1 | `backend/app/modules/certificates/pdf.py` | Added `times` / `times_bold` font faces (Times TTF when present, else the metrically-identical base-14 `Times-Roman`/`Times-Bold`); new `_draw_brand_lockup()` (aspect-preserving, vertically centred logo+wordmark) and `_trim_transparent()` (crop the asset's empty border); lockup geometry constants. `_draw_brand_lockup` replaced the previous inline header; only the wordmark uses Times. |
+| 2 | `report.md` | This section. |
+
+## Alignment fix
+
+Before, the logo was drawn **above** the wordmark (`brand_baseline + 10`) and was
+not aligned to it. Now the logo and wordmark share **one vertical centre**
+(`BRAND_CENTER_Y = 512`):
+
+- logo scaled to fit a **28 × 120 pt** box with the **aspect ratio preserved**
+  (arbitrary logo dimensions are safe — no stretching), then **vertically centred**
+  on the all-caps wordmark's cap centre (Times cap ratio ≈ `0.662` em);
+- the asset's transparent padding is trimmed first, so the **visible mark aligns
+  exactly to the content margin** (`CONTENT_LEFT = 76 pt`) instead of being inset
+  by empty pixels — its **transparent background is preserved** (the circular
+  mark's corners still show the ivory page, not a white box);
+- a constant **13 pt** gap separates logo and wordmark, and the hairline gold rule
+  sits beneath the whole group.
+
+## Font verification
+
+The wordmark is drawn with the resolved `times_bold` face. The generated PDF's
+font resources contain **`/AAAAAA+TimesNewRomanPS-BoldMT`** (a subset of Times New
+Roman **Bold**, embedded) — i.e. the wordmark really is Times New Roman, not a
+look-alike. On this host `C:\Windows\Fonts\timesbd.ttf` was registered; on a host
+without a Times TTF the code falls back to the metrically-identical base-14
+`Times-Bold`, so the wordmark is still Times (no silent substitution claim).
+
+Only the **wordmark** changed font. The heading, recipient name, work title, body
+copy and the verification column keep their previous faces (Georgia/Arial TTFs,
+with base-14 `Helvetica`/`Courier` fallbacks), and the footer wordmark is
+unchanged.
+
+## Verification (programmatic)
+
+Same approach as above — **measurement, not eyeballing** (no image viewer is
+available to the agent). Rasterised the regenerated certificate (pypdfium2, temp
+install) and measured ink extents in PDF coordinates:
+
+| Property | Measured |
+| --- | --- |
+| Logo left edge | **76.00 pt** (exactly `CONTENT_LEFT`) |
+| Logo box | 27.74 × 28.24 pt, aspect **0.98** (source is square — preserved) |
+| Logo vertical centre | 511.88 pt |
+| Wordmark vertical centre | 511.88 pt → **diff 0.00 pt** (perfectly aligned) |
+| Logo→wordmark gap | 13.75 pt (~13 pt + glyph sidebearing) |
+| Lockup vs heading | lockup bottom 497.76 pt; heading top 447.51 pt → **50 pt clearance, no overlap** |
+| Logo background | bbox corners read ivory `#F8F3EA` → **transparency preserved** |
+| Font resource | `/AAAAAA+TimesNewRomanPS-BoldMT` (embedded) |
+
+> **Honest limitation:** verification is *measurement-based* (geometry, ink
+> bounds, embedded-font names, text extraction); there is no screenshot/human
+> visual review in this environment.
+
+## Tests
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Renderer regression | `pytest tests/test_certificate_pdf.py` | **4 passed** |
+| Certificate integration | `pytest tests/test_certificates.py` | **34 passed** |
+| Combined | `pytest tests/test_certificate_pdf.py tests/test_certificates.py` | **38 passed** |
+
+No test changes were required; the refinement preserves every asserted invariant.
+The suite is slow (≈15 s/test: bcrypt + Mongo), so it takes ~10 minutes to run.
+
+# Activity Certificates — Separation Plan
+
+## Objective
+
+Add a **separate Activity Certificates** subsystem for programmes and hackathons
+(participation + awards), reusing only shared, low-level infrastructure. The
+existing **Work Recognition Certificate** system (models, collections, APIs, UI,
+template, verification) is treated as frozen and is **not** modified, migrated or
+refactored.
+
+## Why a separate subsystem (not an extension of certificates)
+
+The two credentials certify fundamentally different things:
+
+| | Work Recognition Certificate | Activity Certificate |
+| --- | --- | --- |
+| Subject | One reviewed **work** + its certification request | A **person's participation/award** in an activity |
+| Award | A single binary outcome (certified) | A category (First/Second/Runner-up/Participation/custom) |
+| Source of truth | `certification_requests` snapshot | `activity_participations` + admin award decision |
+| Id namespace | `THL-CERT-…` | `THL-ACT-CERT-…` |
+| Verify route | `/verify-certificate/:id` | `/verify-activity-certificate/:id` |
+| Collection | `certificates` | `activity_certificates` |
+
+Overloading the existing `certificates` collection (extra `request_id`/`work_id`
+nullable fields, a new award column) would weaken its uniqueness guarantees and
+risk touching live data. A dedicated collection with its own indexes keeps both
+credentials independently evolvable and auditable.
+
+## Isolation guarantees
+
+- **No writes to `certificates`.** The activity subsystem never reads or writes
+  the Work Recognition collection; verification only queries
+  `activity_certificates`.
+- **Additive-only changes** to shared files: new entries in `app/main.py`
+  (router registration), `app/db/indexes.py` (new collections), and
+  `backend/tests/conftest.py` (test-isolation cleanup list). No existing line is
+  altered in behaviour.
+- **Low-level reuse, no behavioural coupling.** The activity PDF renderer imports
+  pure drawing/QR primitives from `modules/certificates/pdf.py` (palette,
+  geometry, font resolution, `_draw_tracked`, `generate_qr_png`, `sha256_hex`)
+  and **never** calls `render_certificate_pdf`. It builds its own ID generator and
+  verification-URL builder (`THL-ACT-CERT`, `/verify-activity-certificate/`).
+- **Independent template** configuration stored in `activity_certificate_templates`
+  (singleton), snapshotted onto each issued certificate for auditability.
+
+## Data model (new collections)
+
+- `activity_certificates` — one immutable record per issued credential.
+  DB-level uniqueness on `certificate_id` and on
+  `(activity_id, member_id, award_key)` (award_key = category, or
+  `custom:<normalized-label>` for custom awards) so the same award cannot be
+  issued twice to the same recipient while genuinely distinct awards are allowed.
+  Records the activity/member/award/work **snapshot** at issuance plus PDF
+  storage reference and email-delivery state.
+- `activity_certificate_audit` — append-only history of issuance, revocation and
+  delivery actions (actor id + role + detail + timestamp).
+- `activity_certificate_templates` — the single editable template document.
+
+## Surfaces
+
+- Admin API `/api/admin/activity-certificates` (list, read, eligible recipients,
+  issue, bulk issue, download, email, revoke, template get/put).
+- Public API `/api/public/activity-certificates/{id}` (verification projection).
+- Member API `/api/member/activity-certificates` (own credentials: list, read,
+  download) — mirrors the existing member certificate authz.
+- Admin UI `/admin/activity-certificates`; public page
+  `/verify-activity-certificate/:certificateId`.
+
+## Roles / safety
+
+- Issuance, bulk issuance, revocation and template edits: `require_role("admin")`
+  (admins + owners) + `require_csrf`.
+- Reads/downloads: any active admin; member endpoints use `get_enabled_member`.
+- Eligibility and identity are **always** validated server-side against
+  `activity_participations`; the client never asserts who participated.
+- Verification URLs are built from the configured non-localhost origin (reusing
+  `CERTIFICATE_VERIFY_BASE_URL`/`FRONTEND_URL`), never localhost.
+- The public projection exposes only public fields (no Mongo `_id`, email,
+  private work content or internal notes).
+
+## Backend implementation status
+
+Implemented as its own module `app/modules/activity_certificates/`
+(`repository.py`, `schemas.py`, `pdf.py`, `service.py`, `admin_router.py`,
+`public.py`, `router.py`) plus `app/models/activity_certificate.py`. Registered
+additively in `app/main.py`, indexed in `app/db/indexes.py`, and included in the
+`backend/tests/conftest.py` isolation cleanup.
+
+Behaviours:
+
+- **Eligibility** requires a `ParticipationStatus.CONFIRMED` participation,
+  checked server-side on every issuance (single and bulk).
+- **Idempotency**: the same award re-issued to the same recipient returns the
+  existing record; distinct awards (including distinct custom labels) are allowed.
+- **Bulk** returns per-recipient `issued` / `skipped` / `failed` buckets with
+  reasons; partial success never aborts the batch.
+- **Revocation** is a status change with a mandatory reason and a permanent audit
+  entry; ids are never reused and revoked PDFs remain downloadable.
+- **Delivery** attaches the PDF and records `sent`/`failed` state; a failed email
+  leaves the certificate valid and verifiable.
+- **Template** is an independent singleton; resolved values are snapshotted onto
+  each certificate so later edits never change an issued PDF.
+
+## Verification / testing
+
+`backend/tests/test_activity_certificates.py` (24 tests) covers RBAC/CSRF,
+eligibility rejection, custom-award validation, idempotent vs. distinct awards,
+PDF download integrity, **QR decoding from the rendered PDF** (via OpenCV),
+public verification (issued/revoked/unknown/public work), email
+success + failure, the independent template, member isolation, and the invariant
+that the Work Recognition `certificates` collection stays empty.
+
+Result: `24 passed` (activity certificates); existing `test_certificates.py`
+(34) and `test_certificate_pdf.py` (4) unchanged and still green.
+
+Limitation: the agent cannot view images, so all PDF/QR checks are programmatic.
+Occasional `pymongo.errors._OperationCancelled` errors are environment flakiness;
+re-running the same file passes.
+
+## Frontend
+
+Added (additive only):
+
+- `web/src/types/activityCertificate.ts` — API-facing types.
+- `web/src/features/activityCertificates/{api.ts,hooks.ts,status.ts}` — feature
+  module mirroring `features/certificates`.
+- `web/src/pages/admin/AdminActivityCertificatesPage.tsx` — issue panel
+  (activity → eligible participants → award/custom → single & bulk issue with
+  per-recipient counts) plus the issued-certificates list with status/email
+  filters and download/email/revoke.
+- `web/src/pages/public/VerifyActivityCertificatePage.tsx` — public verification
+  at `/verify-activity-certificate/:certificateId`.
+- Routes registered in `web/src/app/router/AppRouter.tsx`; sidebar entry added to
+  `web/src/components/layout/AdminNav.tsx` (`/admin/activity-certificates`).
+
+Verification: `web/src/test/activity-certificates.test.tsx` (8 tests) covers the
+public page (issued/revoked/unknown, public work link) and the admin page
+(listing, eligibility-driven bulk issue payload, email + revoke, sidebar link).
+
+Results: `npm run typecheck` clean; `npm run build` succeeds; full web suite
+`328 passed` (30 files). No existing certificate tests changed.
