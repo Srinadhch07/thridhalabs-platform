@@ -48,7 +48,7 @@ async def test_sitemap_includes_public_and_published(client, make_admin, login, 
 
     base = get_settings().FRONTEND_URL
     assert base and base == _PUBLIC_URL
-    for path in ("/", "/projects", "/clients", "/testimonials", "/about", "/contact"):
+    for path in ("/", "/projects", "/activities", "/clients", "/testimonials", "/about", "/contact"):
         assert f"<loc>{base.rstrip('/')}{path}</loc>" in text
 
     assert "/projects/published-lab" in text
@@ -69,7 +69,9 @@ async def test_robots_txt_allows_public_and_bans_admin(client, public_frontend_u
 
 
 async def test_seo_documents_require_configured_public_url(client, monkeypatch):
-    monkeypatch.delenv("FRONTEND_URL", raising=False)
+    # Blanking the process-level value overrides the repository `.env`, so the
+    # settings resolve FRONTEND_URL to "" (the misconfigured-deployment case).
+    monkeypatch.setenv("FRONTEND_URL", "")
     get_settings.cache_clear()
     try:
         res = await client.get("/sitemap.xml")

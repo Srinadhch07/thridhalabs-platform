@@ -118,6 +118,15 @@
   letter-spacing: 0.06em;
 }
 
+/* Work editor: pull the details form up close to the status/certification card. */
+.member-page > .member-stack.member-form > .member-card {
+  padding-bottom: var(--space-3);
+}
+
+.member-page > .member-stack.member-form + .member-stack.member-form {
+  margin-top: var(--space-2);
+}
+
 /* --- Editor status + certification panel ----------------------------------- */
 .work-editor__status {
   display: flex;

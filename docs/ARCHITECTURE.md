@@ -270,18 +270,32 @@ is untouched and still requires authentication.
 - **Backend**: `GET /sitemap.xml` and `GET /robots.txt`
   (`app/api/routes/seo.py`, mounted without the `/api` prefix; also proxied
   by the Vite dev server). URLs derive from `FRONTEND_URL` — never localhost.
-  The sitemap lists only static public routes plus published project slugs
-  (real slugs; no admin, drafts, archived, login, maintenance or media
-  routes). `robots.txt` allows crawling, disallows `/admin` and `/admin/*`,
-  and references the sitemap. Both return `503` when `FRONTEND_URL` is
-  unset (deployment misconfiguration, fail-fast).
+  The sitemap lists the static public routes (`/`, `/projects`, `/activities`,
+  `/clients`, `/testimonials`, `/about`, `/contact`, plus `/careers` when
+  enabled) and published project/activity/member/work slugs (real slugs; no
+  admin, drafts, archived, login, maintenance or media routes). `robots.txt`
+  allows crawling, disallows `/admin` and `/admin/*`, and references the
+  sitemap. Both return `503` when `FRONTEND_URL` is unset (deployment
+  misconfiguration, fail-fast).
+- **Crawler HTML**: the `/share/*` routes render standalone Open Graph /
+  Twitter documents (and 1200x630 preview images) for member, project and work
+  URLs so social crawlers that ignore the SPA still read real metadata.
 - **Frontend**: the existing `usePageMeta` system extended with `ogUrl`
-  (defaults to canonical), `robots` (admin routes auto-`noindex, nofollow`;
-  404/maintenance explicit `noindex`), and twitter-card mirrors.
-  `absolutePageUrl(path)` derives canonical/OG URLs from the current origin.
-  `useJsonLd` injects `Organization` + `WebSite` (home, settings-driven only)
-  and `CreativeWork` (project detail, project data only) via textContent
-  serialization — no `dangerouslySetInnerHTML` anywhere.
+  (defaults to canonical), `robots`, and twitter-card mirrors. Canonical/OG
+  URLs are domain-aware: `getSiteOrigin()` prefers the configured
+  `VITE_SITE_URL` production origin and otherwise falls back to a real
+  (non-localhost) runtime origin, returning `null` rather than publishing a
+  localhost URL — callers then omit the tag. `absolutePageUrl(path)` builds
+  canonicals and share-image URLs from that origin.
+- **Robots defaults** (`defaultRobotsForLocation`): private prefixes
+  (`/admin`, `/member`, `/setup`) and per-ID verification documents
+  (`/verify-certificate`, `/verify-activity-certificate`) default to
+  `noindex, nofollow`; 404 and maintenance set it explicitly. Public routes
+  emit no stray robots directive unless a page opts in.
+- **JSON-LD**: `useJsonLd` injects `Organization` + `WebSite` (home,
+  settings-driven only), `CreativeWork` (project and work detail),
+  and `Person` (member profile) via textContent serialization — no
+  `dangerouslySetInnerHTML` anywhere.
 
 #### Testing strategy
 
@@ -436,6 +450,36 @@ re-declare those variables at runtime.
 The `web/src/lab/` folder is reserved for a later, original implementation of
 the animated experience (canvas/SVG/scroll engine) — nothing is copied from
 the prototype.
+
+### Public homepage — Swiss editorial redesign
+
+The public homepage (`web/src/pages/public/HomePage.tsx`) was rebuilt as a
+Swiss editorial composition: an oversized, left-aligned type hero, a
+disciplined numeric section rhythm (01 selected work → 02 capabilities →
+technology → programmes → 04 collaborators → 05 signal → closing invitation)
+and generous negative space, replacing the previous repetitive centered
+sections.
+
+- **Animated hero backdrop**: `web/src/components/ui/background-paths.tsx`
+  (a Framer-Motion SVG layer adapted from a supposed shadcn/Tailwind source to
+  this project's own CSS conventions). It is a purely decorative,
+  `aria-hidden`, `pointer-events: none` layer confined to the hero, and it
+  renders statically under `prefers-reduced-motion`. Animation durations are
+  deterministic per path index (never `Math.random()` in render).
+- **Theme integration is mandatory and preserved.** Every homepage color is a
+  branding CSS variable (`--color-primary/secondary/accent/background/text`
+  and the tokens derived from them). `BrandingProvider` →
+  `applyBranding()` sets these at runtime from the `/public/branding` API, so
+  the homepage follows every predefined light/dark palette **and** custom
+  admin-configured colors. No homepage-only theme exists and no accent is
+  hard-coded (guarded by `theme-tokens.test.ts`). The BackgroundPaths strokes
+  blend from the same tokens, so they adapt to light and dark palettes.
+- **Motion**: reuse the existing IntersectionObserver `Reveal` wrapper for
+  section reveals and image/card entrance (opacity + transform only), disabled
+  under reduced motion. No scroll hijacking or cursor effects.
+- **Dependency**: `framer-motion` (added to `web/package.json`/
+  `web/package-lock.json`). It is the only new dependency; no Tailwind or
+  shadcn migration was introduced.
 
 ## 5. Environment configuration
 

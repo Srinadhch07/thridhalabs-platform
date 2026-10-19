@@ -207,7 +207,7 @@ describe('homepage featured carousel', () => {
       },
     })
 
-    await screen.findByRole('heading', { level: 1, name: /thridha labs/i })
+    await screen.findByRole('heading', { level: 1, name: /exploring what intelligence can become/i })
     await waitFor(() =>
       expect(calls.some((c) => c.url.includes('/api/public/activities'))).toBe(true),
     )

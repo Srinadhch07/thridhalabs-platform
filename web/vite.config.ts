@@ -35,5 +35,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: false,
+    env: {
+      // A non-localhost canonical origin so SEO helpers emit canonical/OG URLs
+      // in tests, mirroring a configured production build.
+      VITE_SITE_URL: 'https://thridhalabs.test',
+    },
   },
 })

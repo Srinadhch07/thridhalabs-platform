@@ -8,7 +8,7 @@ import { adminDataHandlers, clientsFixture, projectDetailsFixture, projectsFixtu
 describe('public routing', () => {
   it('renders the home page at /', async () => {
     renderApp({ entry: '/' })
-    expect(await screen.findByRole('heading', { level: 1, name: /thridha labs/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /exploring what intelligence can become/i })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Skip to main content' })).toBeInTheDocument()
   })
@@ -69,7 +69,9 @@ describe('public routing', () => {
 
   it('renders the contact page at /contact', async () => {
     renderApp({ entry: '/contact' })
-    expect(await screen.findByRole('heading', { level: 1, name: /get in touch/i })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /have something worth building/i }),
+    ).toBeInTheDocument()
     expect((await screen.findAllByRole('link', { name: 'hello@thridhalabs.com' })).length).toBeGreaterThan(0)
   })
 })

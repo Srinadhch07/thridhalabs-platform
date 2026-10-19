@@ -18,6 +18,7 @@
 }
 /* ---------- header + scroll progress ---------- */
 .public-header {
+  --header-height: 70px;
   position: sticky;
   top: 0;
   z-index: var(--z-hud);
@@ -26,14 +27,19 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+/* Three deliberate regions — brand (never shrinks) · navigation (flexible,
+   vertically centred) · actions (never shrinks). Cartesian spacing means the
+   navigation can never collide with the wordmark; the layout switches to the
+   hamburger before the inline links run out of room. */
 .public-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: clamp(16px, 2vw, 32px);
   width: min(var(--xxl), 100%);
   margin: 0 auto;
-  padding: 14px clamp(20px, 5vw, 48px);
+  padding: 12px clamp(16px, 5vw, 48px);
+  min-width: 0;
 }
 .public-header__progress {
   position: absolute;
@@ -50,6 +56,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: 7px;
+  flex: 0 0 auto;
   font-family: var(--mono);
   font-size: var(--fs-base);
   font-weight: 600;
@@ -82,40 +89,116 @@
   color: transparent;
   -webkit-text-stroke: 1px color-mix(in srgb, var(--color-text) 62%, transparent);
 }
-.header-admin {
+.header-login {
   font-family: var(--mono);
   font-size: var(--fs-xs);
+  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-faint);
-  padding: 6px 10px;
-  border: 1px solid var(--frame-soft);
+  color: var(--color-text);
+  padding: 8px 14px;
+  border: 1px solid var(--frame);
   border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
 }
-.header-admin:hover {
+.header-login:hover {
   color: var(--color-primary);
-  border-color: var(--frame);
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
+.header-cta {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-accent);
+  background: var(--color-primary);
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.header-cta:hover {
+  background: var(--color-accent);
+  color: var(--on-accent);
+}
+@media (max-width: 1099px) {
+  /* Closed mobile header: brand pinned left, hamburger pinned to the far right.
+     With `space-between` plus an auto right-margin on the brand, the brand
+     absorbs the free space and pushes the hamburger (the only other in-flow
+     child; the panel is fixed and the actions are hidden) flush to the right
+     edge. */
+  .public-header__inner {
+    padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  }
+  /* Mobile bar height = 10px padding ×2 + the 46px hamburger. Keep the panel's
+     top offset in sync so it starts flush under the header. */
+  .public-header {
+    --header-height: 66px;
+  }
+  .public-brand {
+    margin-right: auto;
+  }
+  /* No Start a project / Member Login in the closed mobile bar. */
+  .header-cta {
+    display: none;
+  }
+  .header-login {
+    display: none;
+  }
 }
 /* ---------- public navigation (desktop + mobile panel, one landmark) ---------- */
+/* Desktop: the wrapper owns the flexible middle region so the links are centred
+   between the fixed brand and the fixed actions and can never overlap either. */
 .mobile-menu {
-  position: static;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.public-nav {
+  min-width: 0;
 }
 .public-nav__list {
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  flex-wrap: nowrap;
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
   font-family: var(--mono);
   font-size: var(--fs-xs);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .public-nav a {
   color: var(--text-dim);
   position: relative;
   padding-block: 6px;
+}
+/* Intermediate desktop band (tablet-landscape → small laptop): tighten the
+   inline navigation so the links stay clear of the brand and actions instead
+   of colliding. Below 1100px the hamburger takes over entirely. */
+@media (min-width: 1100px) and (max-width: 1279px) {
+  .public-header__inner {
+    gap: var(--space-4);
+  }
+  .public-nav__list {
+    gap: var(--space-3);
+    letter-spacing: 0.08em;
+  }
 }
 .public-nav a::after {
   content: "";
@@ -139,80 +222,188 @@
 .menu-toggle {
   display: none;
   align-items: center;
-  gap: var(--space-3);
-  padding: 8px 12px;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  flex: 0 0 auto;
   border: 1px solid var(--frame);
-  border-radius: var(--radius-sm);
-  background: transparent;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
   color: var(--color-text);
-  font-family: var(--mono);
-  font-size: var(--fs-xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   cursor: pointer;
   position: relative;
   z-index: var(--z-modal);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  -webkit-tap-highlight-color: transparent;
 }
 .menu-toggle:hover {
-  border-color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.menu-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.menu-toggle[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 .menu-toggle__bars {
   display: inline-flex;
   flex-direction: column;
+  justify-content: center;
   gap: 4px;
-  width: 16px;
+  width: 18px;
 }
 .menu-toggle__bars span {
   display: block;
-  height: 1.5px;
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
   background: currentColor;
-  transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+  transform-origin: center;
+  transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease),
+    width var(--dur-fast) var(--ease);
 }
 .menu-toggle[aria-expanded="true"] .menu-toggle__bars span:nth-child(1) {
-  transform: translateY(5.5px) rotate(45deg);
+  transform: translateY(6px) rotate(45deg);
 }
 .menu-toggle[aria-expanded="true"] .menu-toggle__bars span:nth-child(2) {
   opacity: 0;
+  transform: scaleX(0.4);
 }
 .menu-toggle[aria-expanded="true"] .menu-toggle__bars span:nth-child(3) {
-  transform: translateY(-5.5px) rotate(-45deg);
+  transform: translateY(-6px) rotate(-45deg);
 }
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
   .menu-toggle {
     display: inline-flex;
-  
-}
+  }
+  /* A `backdrop-filter` (or filter/transform) on an ancestor turns it into the
+     containing block for `position: fixed` descendants. The header uses one for
+     its frosted bar, which would anchor the fixed menu panel to the 70px header
+     instead of the viewport — the root cause of the panel's broken geometry and
+     dead space. Drop the blur at mobile widths (the bar stays effectively solid)
+     so the panel is positioned against the viewport as intended. */
+  .public-header {
+    background: var(--color-background);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  /* The panel drops out *below* the header, fully opaque, and sits one layer
+     under the header bar so its top-right close control stays on top. It fills
+     the remaining viewport exactly (no scrolling — the items always fit) and is
+     clipped so homepage content can never bleed through. */
   .mobile-menu {
     position: fixed;
-    inset: 0;
-    z-index: var(--z-overlay);
-    display: grid;
-    place-items: start center;
-    padding: calc(84px + var(--space-6)) clamp(24px, 7vw, 64px) var(--space-8);
-    background: color-mix(in srgb, var(--color-background) 96%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    inset: var(--header-height) 0 0 0;
+    z-index: calc(var(--z-hud) - 1);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: stretch;
+    padding: 12px max(18px, env(safe-area-inset-right))
+      max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+    background: var(--color-background);
+    overflow: hidden;
+    overscroll-behavior: contain;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-8px);
     transition:      opacity var(--dur) var(--ease),      transform var(--dur) var(--ease),      visibility 0s linear var(--dur);
-  
-}
+  }
   .mobile-menu.is-open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     transition-delay: 0s;
-  
-}
+  }
+  /* Solid panel means labels no longer compete with page content: raise
+     contrast from the dim default to the full themed text color. */
+  .mobile-menu .public-nav a {
+    color: var(--color-text);
+  }
+  .mobile-menu .public-nav a::after {
+    display: none;
+  }
+  /* Compact rows: 15px labels, restrained tracking, ~46px targets, hairline
+     separators — the whole menu reads as one tidy list and fits the viewport. */
   .public-nav__list {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-6);
-    font-size: var(--fs-md);
-    letter-spacing: 0.2em;
-  
+    align-items: stretch;
+    gap: 0;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    border-top: 1px solid var(--frame-soft);
+  }
+  .public-nav__list li {
+    border-bottom: 1px solid var(--frame-soft);
+  }
+  .public-nav__list a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 46px;
+    padding: 8px 4px;
+  }
 }
+/* ---------- mobile menu actions (home glyph + panel actions) ---------- */
+.public-nav__home {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.public-nav__icon {
+  flex: 0 0 auto;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.public-nav__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.public-nav__login,
+.public-nav__cta {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+/* Member Login keeps the outlined treatment used in the desktop header. */
+.public-nav__login {
+  color: var(--color-text);
+  border: 1px solid var(--frame);
+}
+.public-nav__login:hover {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+/* Start a project keeps the primary (blue) treatment. */
+.public-nav__cta {
+  color: var(--on-accent);
+  background: var(--color-primary);
+  border: 1px solid transparent;
+}
+.public-nav__cta:hover {
+  background: var(--color-accent);
+  color: var(--on-accent);
+}
+@media (min-width: 1100px) {
+  /* Desktop keeps a single inline row: the panel actions live in the header
+     actions instead, so they are hidden here to avoid duplicates. */
+  .public-nav__actions {
+    display: none;
+  }
 }
 /* ---------- footer ---------- */
 .public-footer {
@@ -339,6 +530,53 @@
   height: 3px;
   background: linear-gradient(90deg, var(--color-primary), transparent);
 }
+/* ---------- animated background paths (hero backdrop) ----------
+   Purely decorative layer behind the hero content. Colors are blended from
+   the active branding tokens so the strokes follow the owner theme in both
+   light and dark palettes; opacity stays low enough to keep the headline and
+   CTAs perfectly legible. `overflow: clip` + inset:0 keep the paths inside
+   the hero and prevent any horizontal overflow or stray scrollbars. */
+.background-paths {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.background-paths__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.background-paths__stroke {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 38%, transparent);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.background-paths__stroke.is-soft {
+  stroke: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+}
+/* ---------- cosmic field (hero backdrop) ----------
+   Canvas-rendered cinematic deep-space scene behind the hero. The canvas colors
+   are blended from the active branding tokens at runtime (see CosmicField), so
+   the scene follows light/dark palettes and custom admin colors. The wrapper is
+   purely decorative: inert, non-selectable, and clipped to the hero so it can
+   never create overflow or capture input. */
+.cosmic-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.cosmic-field__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 /* ---------- section headings ---------- */
 .section-head {
   display: flex;
@@ -370,7 +608,97 @@
 .section-head__action:hover {
   color: var(--color-primary);
 }
-/* ---------- home hero ---------- */
+/* ---------- home hero (editorial + cosmic) ----------
+   The CosmicField canvas paints the deep-space scene behind the content; this
+   rule provides the themed base (a rich fallback if canvas is unavailable) plus
+   a legibility vignette. All colors are branding tokens so the active admin
+   theme — predefined or custom — drives the whole hero. */
+.hero--editorial {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: min(88vh, 860px);
+  padding-block: clamp(96px, 16vh, 180px) clamp(56px, 9vh, 96px);
+  overflow: clip;
+  isolation: isolate;
+  background-color: var(--color-background);
+  background-image:    radial-gradient(58% 72% at 76% 30%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 66%),    radial-gradient(48% 60% at 8% 88%, color-mix(in srgb, var(--color-secondary) 10%, transparent), transparent 70%),    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--color-text) 4%, transparent), transparent 60%);
+}
+/* Legibility vignette: darker (or lighter, on light themes) toward the text
+   column so the headline and CTAs stay high-contrast over the bright nebula. */
+.hero--editorial::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-background) 82%, transparent) 0%, color-mix(in srgb, var(--color-background) 40%, transparent) 42%, transparent 68%);
+}
+.hero-editorial {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(28px, 5vh, 56px);
+}
+.hero-editorial__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0;
+}
+.hero-editorial__title {
+  margin: 0;
+  max-width: 16ch;
+  font-size: clamp(46px, 8.5vw, 128px);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.hero-editorial__title-ghost {
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.hero-editorial__foot {
+  display: grid;
+  grid-template-columns: minmax(0, 30ch) auto;
+  align-items: end;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 64px);
+  border-top: 1px solid var(--frame);
+  padding-top: clamp(20px, 3vh, 32px);
+  max-width: 1000px;
+}
+.hero-editorial__support {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+  max-width: 42ch;
+  text-wrap: pretty;
+}
+.hero-editorial__cta {
+  justify-content: flex-start;
+}
+.hero-editorial__meta {
+  position: absolute;
+  z-index: 1;
+  right: clamp(20px, 5vw, 48px);
+  bottom: clamp(24px, 6vh, 64px);
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+/* Legacy hero (kept for any non-homepage usage of the base class). */
 .hero {
   position: relative;
   min-height: 88vh;
@@ -587,6 +915,200 @@
   gap: var(--space-3);
   align-items: center;
   justify-content: center;
+}
+/* ---------- editorial section system (homepage) ---------- */
+.section--compact {
+  padding-block: clamp(40px, 5vw, 64px);
+}
+.section--compact .ed-head__label {
+  font-size: var(--fs-sm);
+}
+.ed-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(16px, 4vw, 48px);
+  margin-bottom: clamp(32px, 5vw, 64px);
+  border-top: 1px solid var(--frame);
+  padding-top: var(--space-4);
+}
+.ed-head__index {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  align-self: start;
+  padding-top: 4px;
+}
+.ed-head__label {
+  margin: 0 0 var(--space-3);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ed-head__title {
+  margin: 0;
+  font-size: var(--fs-title);
+  max-width: 22ch;
+  text-wrap: balance;
+}
+.ed-head__action {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+  align-self: end;
+  padding-bottom: 4px;
+}
+.ed-head__action:hover {
+  color: var(--color-primary);
+}
+/* selected work — asymmetric lead + stack */
+.work-editorial {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+.work-editorial__stack {
+  display: grid;
+  gap: clamp(20px, 3vw, 40px);
+}
+/* practice — numbered editorial list (what the lab does) */
+.practice {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: clamp(32px, 6vw, 80px);
+  align-items: start;
+}
+.practice__lede {
+  margin: var(--space-4) 0 0;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+  max-width: 40ch;
+  text-wrap: pretty;
+}
+.practice__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--frame-soft);
+}
+.practice-item {
+  border-bottom: 1px solid var(--frame-soft);
+}
+.practice-item > .reveal {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  padding-block: var(--space-5);
+  align-items: baseline;
+}
+.practice-item__index {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+}
+.practice-item__body {
+  display: grid;
+  gap: var(--space-2);
+}
+.practice-item__name {
+  font-size: var(--fs-lg);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.practice-item__detail {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+/* process — QUESTION → EXPERIMENT → BUILD → LEARN */
+.process__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-5);
+}
+.process__step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.process__num {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+.process__name {
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+}
+.process__arrow {
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+}
+/* closing invitation */
+.closing {
+  position: relative;
+  border-top: 1px solid var(--frame);
+  padding-block: clamp(72px, 12vw, 148px);
+  background-image:    radial-gradient(50% 90% at 20% 0%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 70%),    linear-gradient(var(--gridline) 1px, transparent 1px),    linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
+  background-size: auto, 80px 80px, 80px 80px;
+}
+.closing__inner {
+  position: relative;
+}
+.closing__title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--fs-display-sm);
+  max-width: 20ch;
+  text-wrap: balance;
+}
+.closing__lede {
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+  max-width: 44ch;
+  margin: 0 0 var(--space-6);
+  text-wrap: pretty;
+}
+.closing__cta {
+  justify-content: flex-start;
+}
+@media (max-width: 900px) {
+  .work-editorial,  .practice {
+    grid-template-columns: 1fr;
+  
+}
+  .hero-editorial__foot {
+    grid-template-columns: 1fr;
+    align-items: start;
+  
+}
+  .hero-editorial__meta {
+    display: none;
+  
+}
+}
+@media (max-width: 719px) {
+  .ed-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  
+}
+  .ed-head__action {
+    grid-column: 1 / -1;
+  
+}
 }
 /* ---------- home sections ---------- */
 .intro-grid {
@@ -1272,44 +1794,304 @@ img.client-tile__monogram {
 .about-loop-title {
   font-size: var(--fs-title);
 }
-/* ---------- contact ---------- */
-.contact-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-6);
+/* ---------- contact ----------
+   Editorial technology-lab treatment. The hero reuses the shared cosmic
+   backdrop and a restrained connected-systems diagram; contact methods are
+   deliberate cards (equal height, aligned internals). Every color blends from
+   the branding tokens so predefined AND custom admin themes apply. */
+.contact-hero {
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+  background-color: var(--color-background);
+  background-image:
+    radial-gradient(56% 70% at 82% 22%, color-mix(in srgb, var(--color-primary) 13%, transparent), transparent 66%),
+    radial-gradient(46% 58% at 6% 92%, color-mix(in srgb, var(--color-secondary) 10%, transparent), transparent 72%);
 }
-.contact-card {
+.contact-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-background) 84%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 44%, transparent) 44%,
+    transparent 70%
+  );
+}
+.contact-hero__inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 88px);
+  padding-block: clamp(88px, 15vh, 168px) clamp(56px, 9vh, 104px);
+}
+.contact-hero__copy {
+  min-width: 0;
+}
+.contact-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 var(--space-5);
+}
+.contact-hero__title {
+  margin: 0 0 var(--space-5);
+  max-width: 14ch;
+  font-size: clamp(40px, 7vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.contact-hero__title-ghost {
+  display: block;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.contact-hero__support {
+  margin: 0 0 var(--space-6);
+  max-width: 52ch;
+  font-size: var(--fs-md);
+  color: var(--text-dim);
+  text-wrap: pretty;
+}
+.contact-hero__cta {
+  justify-content: flex-start;
+}
+.contact-hero__figure {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+.contact-hero__diagram {
+  width: min(100%, 380px);
+  height: auto;
+  max-height: min(52vh, 380px);
+  overflow: visible;
+}
+/* Concentric orbital rings — thin, deliberate structure (no arbitrary grid). */
+.contact-hero__diagram-orbits ellipse {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-text) 12%, transparent);
+  stroke-width: 1;
+}
+.contact-hero__diagram-orbits ellipse:first-child {
+  stroke: color-mix(in srgb, var(--color-text) 9%, transparent);
+}
+/* Radial connectors from the core to each node — faint, restrained. */
+.contact-hero__diagram-links path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+}
+/* Restrained ambient lighting behind the core. */
+.contact-hero__halo {
+  opacity: 0.7;
+}
+.contact-hero__grad-halo-inner {
+  stop-color: var(--color-primary);
+  stop-opacity: 0.16;
+}
+.contact-hero__grad-halo-outer {
+  stop-color: var(--color-primary);
+  stop-opacity: 0;
+}
+/* The intelligence core — a soft, lit centre, not an over-bright blob. */
+.contact-hero__grad-core-inner {
+  stop-color: var(--color-accent);
+  stop-opacity: 0.9;
+}
+.contact-hero__grad-core-mid {
+  stop-color: var(--color-primary);
+  stop-opacity: 0.35;
+}
+.contact-hero__grad-core-outer {
+  stop-color: var(--color-primary);
+  stop-opacity: 0;
+}
+.contact-hero__diagram-core-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  stroke-width: 1;
+}
+.contact-hero__diagram-core-dot {
+  fill: var(--color-accent);
+}
+.contact-hero__diagram-node {
+  fill: var(--color-background);
+  stroke: color-mix(in srgb, var(--color-secondary) 85%, transparent);
+  stroke-width: 1.5;
+}
+.contact-hero__diagram-node--hub {
+  fill: var(--color-primary);
+  stroke: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  stroke-width: 2.5;
+}
+.contact-empty {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+}
+.contact-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+  align-items: stretch;
+}
+.contact-methods > .reveal,
+.contact-method {
+  min-width: 0;
+  height: 100%;
+}
+.contact-method {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  padding: var(--space-6);
+  transition:
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
 }
-.contact-card__label {
+.contact-method:hover {
+  border-color: var(--accent-glow);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+.contact-method__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+.contact-method__heading {
+  margin: 0;
+  font-size: var(--fs-lg);
+  letter-spacing: -0.01em;
+}
+.contact-method__detail {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  text-wrap: pretty;
+}
+.contact-method__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  border-top: 1px solid var(--line-2);
+}
+.contact-method__link:not(.contact-method__link--static) {
+  border-bottom: 1px solid var(--border-strong);
+}
+.contact-method__link:not(.contact-method__link--static):hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.contact-method__link--static {
+  color: var(--text-dim);
+}
+.contact-method__arrow {
+  margin-left: auto;
+  transition: transform var(--dur) var(--ease);
+}
+.contact-method:hover .contact-method__arrow {
+  transform: translateX(4px);
+}
+.contact-socials {
+  margin-top: var(--space-7);
+}
+.contact-socials__title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.collab-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  border-top: 1px solid var(--frame);
+}
+.collab-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(16px, 4vw, 48px);
+  align-items: start;
+  padding-block: clamp(20px, 3vw, 32px);
+  border-bottom: 1px solid var(--frame);
+}
+.collab-item__index {
   font-family: var(--mono);
   font-size: var(--fs-xs);
   letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: var(--space-3);
+  color: var(--text-faint);
+  padding-top: 4px;
 }
-.contact-card__value {
-  font-size: var(--fs-md);
-  color: var(--text-primary);
-  overflow-wrap: anywhere;
+.collab-item__body {
+  min-width: 0;
+  max-width: 62ch;
 }
-.contact-card__value a {
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-strong);
-  padding-bottom: 1px;
+.collab-item__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-lg);
+  letter-spacing: -0.01em;
 }
-.contact-card__value a:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+.collab-item__detail {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  text-wrap: pretty;
 }
 .social-row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+@media (max-width: 900px) {
+  .contact-hero__inner {
+    grid-template-columns: 1fr;
+    gap: clamp(28px, 6vw, 48px);
+  }
+  .contact-hero__figure {
+    order: -1;
+    justify-content: flex-start;
+  }
+  .contact-hero__diagram {
+    width: min(58%, 260px);
+    max-height: min(40vh, 260px);
+  }
 }
 /* ---------- careers ---------- */
 .opportunity-list {
@@ -1421,6 +2203,10 @@ img.client-tile__monogram {
 }
   .origin,  .orbit-ring,  .orbit-core,  .hero-scroll-hint::before,  .hero-legend__dot,  .caret {
     animation: none;
+  
+}
+  .menu-toggle__bars span,  .mobile-menu {
+    transition-duration: 1ms;
   
 }
 }

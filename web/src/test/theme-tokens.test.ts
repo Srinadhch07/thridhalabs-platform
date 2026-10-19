@@ -17,6 +17,7 @@ function readStylesheet(file: string): string {
 
 const tokensCss = readStylesheet('tokens.css')
 const globalsCss = readStylesheet('globals.css')
+const publicCss = readStylesheet('public.css')
 
 const DERIVED_TOKENS = ['--bg', '--bg-2', '--bg-3', '--ink', '--ink-dim', '--muted', '--faint', '--line', '--line-2', '--gridline']
 
@@ -64,6 +65,23 @@ describe('theme token mapping', () => {
     expect(selection).toMatch(/var\(--color-text\) 18%, transparent/)
     expect(selection).not.toMatch(/var\(--accent\)/)
     expect(selection).toMatch(/color: var\(--color-text\);/)
+  })
+
+  it('keeps the public homepage theme-aware — no hard-coded accent hexes', () => {
+    // The redesigned homepage (including the canvas CosmicField hero) must
+    // follow the admin-configured theme. No literal hex colors are allowed in
+    // the public stylesheet; every accent blends from branding tokens, so
+    // predefined palettes AND custom colors both apply.
+    const hexes = publicCss.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []
+    expect(hexes).toEqual([])
+    // The cosmic backdrop paints from the branding tokens (read at runtime).
+    const cosmicField = readFileSync(
+      path.join(process.cwd(), 'src', 'components', 'ui', 'cosmic-field.tsx'),
+      'utf8',
+    )
+    expect(cosmicField).toMatch(/--color-primary/)
+    expect(cosmicField).toMatch(/--color-background/)
+    expect(cosmicField).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
 })
 

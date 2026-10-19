@@ -267,6 +267,7 @@ export default function WorkEditorPage() {
       />
 
       {isEdit && data ? (
+        <div className="member-stack member-form">
         <MemberCard>
           <div className="work-editor__status">
             <div className="work-editor__status-chips">
@@ -401,6 +402,7 @@ export default function WorkEditorPage() {
             </p>
           </div>
         </MemberCard>
+        </div>
       ) : null}
 
       <form className="member-stack member-form" onSubmit={handleSave} noValidate>

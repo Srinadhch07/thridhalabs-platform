@@ -1,20 +1,25 @@
 /**
- * Home page — the public Thridha Labs landing, built as an "experimental
- * technology unit" rather than a generic agency page.
+ * Home page — the public Thridha Labs landing.
  *
- * Sections: hero → intro → selected work → clients → experiments/technology →
- * testimonials → philosophy → CTA. Every data-driven section degrades
- * gracefully: API errors render a section-level retry, and empty content hides
- * the section entirely — no fabricated metrics or claims.
+ * Rebuilt as a Swiss editorial composition: an oversized type-driven hero with
+ * the animated BackgroundPaths backdrop, then a disciplined sequence of
+ * numbered, asymmetrically aligned sections (selected work, capabilities,
+ * programmes, collaborators, signal, closing invitation).
+ *
+ * Everything remains data-driven and theme-aware: every color is a branding
+ * token (so the owner's palette — predefined or custom — drives the page),
+ * and every section degrades gracefully. API errors render a section-level
+ * retry; empty content hides the section entirely. No fabricated metrics.
  */
 
 import { Link } from 'react-router-dom'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { useSiteSettings } from '../../app/providers/SiteSettingsProvider'
+import { CosmicField } from '../../components/ui/cosmic-field'
 import { ClientTile } from '../../components/public/ClientTile'
 import { ActivityCarousel } from '../../components/public/ActivityCarousel'
 import { ProjectCard } from '../../components/public/ProjectCard'
 import { Reveal } from '../../components/public/Reveal'
-import { SectionHeader } from '../../components/public/SectionHeader'
 import { TechChips } from '../../components/public/TechChips'
 import { TestimonialCard } from '../../components/public/TestimonialCard'
 import { ErrorState } from '../../components/ui/ErrorState'
@@ -25,131 +30,97 @@ import { usePageMeta, useBrandingOgImage, absolutePageUrl } from '../../lib/util
 import { useJsonLd } from '../../lib/hooks/useJsonLd'
 import type { PublicClient, PublicProject, PublicTestimonial } from '../../types/content'
 
-const PHILOSOPHY_WORDS: Array<{ word: string; ghost?: boolean }> = [
-  { word: 'Build' },
-  { word: 'Break', ghost: true },
-  { word: 'Learn' },
-  { word: 'Repeat', ghost: true },
-]
-
-function isThridhaBrand(siteName: string): boolean {
-  return /^thridha labs$/i.test(siteName)
-}
-
 /* ------------------------------------------------------------------ */
 /* Hero                                                                */
 /* ------------------------------------------------------------------ */
 
-function HeroSection({
-  siteName,
-  tagline,
-  description,
-}: {
-  siteName: string
-  tagline: string
-  description: string
-}) {
-  const title = isThridhaBrand(siteName) ? (
-    <>
-      <span className="wordmark__line">
-        <span>Thridha </span>
-      </span>
-      <span className="wordmark__line">
-        <span className="wordmark--ghost">Labs</span>
-        <i className="wordmark__rule" aria-hidden="true" />
-      </span>
-    </>
-  ) : (
-    siteName
-  )
+const HERO_STAGGER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+}
+
+const HERO_ITEM: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+}
+
+function HeroSection() {
+  const reduceMotion = useReducedMotion()
+  const container: Variants = reduceMotion ? { hidden: {}, show: {} } : HERO_STAGGER
+  const item: Variants = reduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : HERO_ITEM
 
   return (
-    <section className="hero" aria-labelledby="hero-title">
-      <p className="hero-legend hero-legend--top">
-        <span className="hud-dot" aria-hidden="true" /> Core / online
-      </p>
+    <section className="hero hero--editorial" aria-labelledby="hero-title">
+      <CosmicField />
 
-      <div className="hero-orbit" aria-hidden="true">
-        <span className="orbit-ring orbit-ring--outer" />
-        <span className="orbit-ring orbit-ring--mid" />
-        <span className="orbit-ring orbit-ring--inner" />
-        <span className="orbit-core" />
-        <span className="orbit-node" style={{ top: '16%', left: '60%' }} />
-        <span className="orbit-node" style={{ top: '70%', left: '24%' }} />
-      </div>
+      <motion.div className="shell hero-editorial" variants={container} initial="hidden" animate="show">
+        <motion.p className="hero-editorial__eyebrow" variants={item}>
+          <span className="hud-dot" aria-hidden="true" />
+          Independent AI-first experimental lab
+        </motion.p>
 
-      <div className="shell hero__inner">
-        <p className="eyebrow hero-eyebrow">
-          <span className="rec-dot" aria-hidden="true" />
-          Thridha Labs — experimental technology unit
-        </p>
-        <h1 id="hero-title" className="wordmark" aria-label={siteName}>
-          {title}
-        </h1>
-        <p className="hero__statement">
-          {tagline}
-          <span className="caret" aria-hidden="true" />
-        </p>
-        <p className="hero__support">{description}</p>
-        <div className="cta-row">
-          <Link className="btn btn--primary" to="/projects">
-            Explore the lab
-          </Link>
-          <Link className="btn btn--ghost" to="/projects?type=experiment">
-            See experiments
-          </Link>
-        </div>
-      </div>
+        <motion.h1 id="hero-title" className="hero-editorial__title" variants={item}>
+          Exploring what intelligence{' '}
+          <span className="hero-editorial__title-ghost">can become.</span>
+        </motion.h1>
 
-      <p className="hero-legend hero-legend--side" aria-hidden="true">
-        Lab
-      </p>
-      <p className="hero-scroll-hint">Scroll / explore</p>
+        <motion.div className="hero-editorial__foot" variants={item}>
+          <p className="hero-editorial__support">
+            We experiment with AI, build intelligent systems, and turn emerging ideas into
+            working products.
+          </p>
+          <div className="cta-row hero-editorial__cta">
+            <Link className="btn btn--primary" to="/projects?type=experiment">
+              Explore our experiments
+            </Link>
+            <Link className="btn btn--ghost" to="/projects">
+              See what we&apos;re building
+            </Link>
+          </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/* Intro                                                               */
+/* Section heading helper                                              */
 /* ------------------------------------------------------------------ */
 
-function IntroSection({ siteName, description }: { siteName: string; description: string }) {
+function EditorialHeader({
+  index,
+  label,
+  title,
+  action,
+  id,
+}: {
+  index: string
+  label: string
+  title: string
+  action?: { to: string; label: string }
+  id?: string
+}) {
   return (
-    <section className="section" aria-labelledby="intro-title">
-      <div className="shell intro-grid">
-        <Reveal>
-          <p className="tag section-head__tag">
-            <span className="hud-dot" aria-hidden="true" /> Ideas
-          </p>
-          <h2 id="intro-title" className="section-head__title">
-            Ideas connect. Experiments begin.
-          </h2>
-        </Reveal>
-        <Reveal delay={120} className="intro-copy">
-          <p>
-            <strong>{siteName}</strong> is a technology and AI experimentation lab. {description}
-          </p>
-          <p>No ceremony, no roadmap theatre — just the loop, run honestly.</p>
-          <ul className="mode-list">
-            <li className="mode-item">
-              <span className="mode-item__index">01</span>
-              <span className="mode-item__name">Research</span>
-              <span className="mode-item__desc">What's next</span>
-            </li>
-            <li className="mode-item">
-              <span className="mode-item__index">02</span>
-              <span className="mode-item__name">Build</span>
-              <span className="mode-item__desc">How it works</span>
-            </li>
-            <li className="mode-item">
-              <span className="mode-item__index">03</span>
-              <span className="mode-item__name">Ship</span>
-              <span className="mode-item__desc">What you get</span>
-            </li>
-          </ul>
-        </Reveal>
+    <Reveal className="ed-head">
+      <p className="ed-head__index" aria-hidden="true">
+        {index}
+      </p>
+      <div className="ed-head__main">
+        <p className="ed-head__label">{label}</p>
+        <h2 id={id} className="ed-head__title">
+          {title}
+        </h2>
       </div>
-    </section>
+      {action && (
+        <Link className="ed-head__action" to={action.to}>
+          {action.label}
+          <span className="arrow" aria-hidden="true">
+            {' '}
+            →
+          </span>
+        </Link>
+      )}
+    </Reveal>
   )
 }
 
@@ -170,7 +141,7 @@ function SelectedWorkSection({
     return (
       <section className="section">
         <div className="shell">
-          <SectionHeader tag="Selected work" title="Selected work." />
+          <EditorialHeader index="01" label="Selected work" title="Selected work." />
           <ErrorState title="Unable to load projects" error={error} onRetry={reload} />
         </div>
       </section>
@@ -178,25 +149,30 @@ function SelectedWorkSection({
   }
   if (projects.length === 0) return null
 
-  const [heroProject, ...rest] = projects
+  const [lead, ...rest] = projects
   return (
-      <section className="section" aria-labelledby="selected-title">
+    <section className="section" aria-labelledby="selected-title">
       <div className="shell">
-        <SectionHeader
+        <EditorialHeader
           id="selected-title"
-          tag="Selected work"
-          title="Running, not promised."
+          index="01"
+          label="Selected work"
+          title="Things we've built, running now."
           action={{ to: '/projects', label: 'All projects' }}
         />
-        <div className="project-grid">
-          <Reveal className="reveal--grid">
-            <ProjectCard featured project={heroProject} />
+        <div className="work-editorial">
+          <Reveal className="work-editorial__lead">
+            <ProjectCard featured project={lead} />
           </Reveal>
-          {rest.map((project) => (
-            <Reveal key={project.slug} className="reveal--grid">
-              <ProjectCard project={project} />
-            </Reveal>
-          ))}
+          {rest.length > 0 && (
+            <div className="work-editorial__stack">
+              {rest.map((project) => (
+                <Reveal key={project.slug}>
+                  <ProjectCard project={project} />
+                </Reveal>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -204,7 +180,105 @@ function SelectedWorkSection({
 }
 
 /* ------------------------------------------------------------------ */
-/* Clients strip                                                       */
+/* Practice — what the lab does (ecosystem framing)                    */
+/* ------------------------------------------------------------------ */
+
+const PRACTICE: Array<{ index: string; name: string; detail: string }> = [
+  {
+    index: '01',
+    name: 'AI & intelligence',
+    detail: 'Experiments with agents, language models and intelligent workflows.',
+  },
+  {
+    index: '02',
+    name: 'Products & systems',
+    detail: 'Applications, tools and platforms built into working products.',
+  },
+  {
+    index: '03',
+    name: 'Client projects',
+    detail: 'Websites and software delivered for real-world problems.',
+  },
+  {
+    index: '04',
+    name: 'Research & exploration',
+    detail: 'Prototypes and emerging-technology investigations.',
+  },
+]
+
+function PracticeSection() {
+  return (
+    <section className="section" aria-labelledby="practice-title">
+      <div className="shell">
+        <Reveal className="practice">
+          <div className="practice__intro">
+            <p className="ed-head__label">What we do</p>
+            <h2 id="practice-title" className="ed-head__title">
+              An AI-first lab that experiments, builds and delivers.
+            </h2>
+            <p className="practice__lede">
+              One team across the whole arc — from an open question to a working product.
+            </p>
+          </div>
+          <ul className="practice__list">
+            {PRACTICE.map((item, index) => (
+              <li key={item.name} className="practice-item">
+                <Reveal delay={index * 80}>
+                  <span className="practice-item__index" aria-hidden="true">
+                    {item.index}
+                  </span>
+                  <div className="practice-item__body">
+                    <span className="practice-item__name">{item.name}</span>
+                    <span className="practice-item__detail">{item.detail}</span>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Process — QUESTION → EXPERIMENT → BUILD → LEARN                     */
+/* ------------------------------------------------------------------ */
+
+const PROCESS_STEPS = ['Question', 'Experiment', 'Build', 'Learn'] as const
+
+function ProcessSection() {
+  return (
+    <section className="section section--compact" aria-labelledby="process-title">
+      <div className="shell">
+        <Reveal className="process">
+          <p className="ed-head__label">How we work</p>
+          <h2 id="process-title" className="visually-hidden">
+            How we work
+          </h2>
+          <ol className="process__list">
+            {PROCESS_STEPS.map((step, index) => (
+              <li key={step} className="process__step">
+                <span className="process__num" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="process__name">{step}</span>
+                {index < PROCESS_STEPS.length - 1 && (
+                  <span className="process__arrow" aria-hidden="true">
+                    →
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Collaborators                                                       */
 /* ------------------------------------------------------------------ */
 
 function ClientsSection({
@@ -220,7 +294,7 @@ function ClientsSection({
     return (
       <section className="section">
         <div className="shell">
-          <SectionHeader tag="Collaborators" title="People we build with" />
+          <EditorialHeader index="04" label="Collaborators" title="People we build with" />
           <ErrorState title="Unable to load clients" error={error} onRetry={reload} />
         </div>
       </section>
@@ -231,11 +305,12 @@ function ClientsSection({
   const featured = clients.filter((client) => client.featured)
   const strip = (featured.length > 0 ? featured : clients).slice(0, 6)
   return (
-      <section className="section" aria-labelledby="clients-title">
+    <section className="section" aria-labelledby="clients-title">
       <div className="shell">
-        <SectionHeader
+        <EditorialHeader
           id="clients-title"
-          tag="Collaborators"
+          index="04"
+          label="Collaborators"
           title="People we build with."
           action={{ to: '/clients', label: 'All clients' }}
         />
@@ -252,57 +327,29 @@ function ClientsSection({
 }
 
 /* ------------------------------------------------------------------ */
-/* Experiments + technology                                            */
+/* Technology                                                          */
 /* ------------------------------------------------------------------ */
 
-function ExperimentsSection({
-  projects,
-  excluded,
-}: {
-  projects: PublicProject[]
-  excluded: Set<string>
-}) {
-  if (projects.length === 0) return null
-
-  const experiments = projects.filter(
-    (project) => project.project_type === 'experiment' && !excluded.has(project.slug),
-  )
+function TechnologySection({ projects }: { projects: PublicProject[] }) {
   const technologies = [...new Set(projects.flatMap((project) => project.technologies))].slice(0, 18)
-  if (experiments.length === 0 && technologies.length === 0) return null
+  if (technologies.length === 0) return null
 
   return (
-      <section className="section" aria-labelledby="experiments-title">
+    <section className="section section--compact" aria-labelledby="tech-title">
       <div className="shell">
-        <SectionHeader
-          id="experiments-title"
-          tag="Experiments"
-          title="Experiments, live in the lab."
-          action={{ to: '/projects?type=experiment', label: 'All experiments' }}
-        />
-        {experiments.length > 0 && (
-          <div className="project-grid">
-            {experiments.map((project) => (
-              <Reveal key={project.slug} className="reveal--grid">
-                <ProjectCard project={project} />
-              </Reveal>
-            ))}
-          </div>
-        )}
-        {technologies.length > 0 && (
-          <Reveal delay={140}>
-            <p className="eyebrow experiments__tech">
-              Technology in use
-            </p>
-            <TechChips items={technologies} />
-          </Reveal>
-        )}
+        <Reveal>
+          <h2 id="tech-title" className="ed-head__label">
+            Technology in use
+          </h2>
+          <TechChips items={technologies} />
+        </Reveal>
       </div>
     </section>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/* Testimonials                                                        */
+/* Signal (testimonials)                                               */
 /* ------------------------------------------------------------------ */
 
 function TestimonialsSection({
@@ -318,7 +365,7 @@ function TestimonialsSection({
     return (
       <section className="section">
         <div className="shell">
-          <SectionHeader tag="Signal" title="What people say." />
+          <EditorialHeader index="05" label="Signal" title="What people say." />
           <ErrorState title="Unable to load testimonials" error={error} onRetry={reload} />
         </div>
       </section>
@@ -329,11 +376,12 @@ function TestimonialsSection({
   const featured = items.filter((item) => item.featured)
   const strip = (featured.length > 0 ? featured : items).slice(0, 3)
   return (
-      <section className="section" aria-labelledby="testimonials-title">
+    <section className="section" aria-labelledby="testimonials-title">
       <div className="shell">
-        <SectionHeader
+        <EditorialHeader
           id="testimonials-title"
-          tag="Signal"
+          index="05"
+          label="Signal"
           title="What people say."
           action={{ to: '/testimonials', label: 'All testimonials' }}
         />
@@ -350,55 +398,28 @@ function TestimonialsSection({
 }
 
 /* ------------------------------------------------------------------ */
-/* Philosophy + CTA                                                    */
+/* Closing CTA                                                         */
 /* ------------------------------------------------------------------ */
 
-function PhilosophySection({ siteName }: { siteName: string }) {
+function ClosingSection() {
   return (
-      <section className="section" aria-labelledby="philosophy-title">
-      <div className="shell">
-        <p className="tag section-head__tag">
-          <span className="hud-dot" aria-hidden="true" /> The loop
-        </p>
-        <h2 id="philosophy-title" className="visually-hidden">
-          How we operate
-        </h2>
-        <ul className="philosophy-list">
-          {PHILOSOPHY_WORDS.map((entry, index) => (
-            <li key={entry.word}>
-              <Reveal delay={index * 90}>
-                <span className={`philosophy-word${entry.ghost ? ' philosophy-word--ghost' : ''}`}>
-                  {entry.word}
-                </span>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
-        <Reveal delay={380}>
-          <p className="philosophy-foot">
-            That is how we build at <b>{siteName}</b>. No ceremony, no roadmap theatre — just the
-            loop, run honestly.
-          </p>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
-function CTASection() {
-  return (
-    <section className="cta-band" aria-labelledby="cta-title">
-      <div className="cta-band__inner shell">
+    <section className="closing" aria-labelledby="closing-title">
+      <div className="shell closing__inner">
         <Reveal>
-          <p className="tag">Signal</p>
-          <h2 id="cta-title">Something interesting is being built.</h2>
-          <p>The lab is always open. Bring a question, or bring a broken thing.</p>
-          <div className="cta-row">
+          <p className="ed-head__label">Work with the lab</p>
+          <h2 id="closing-title" className="closing__title">
+            Have an idea worth experimenting on?
+          </h2>
+          <p className="closing__lede">
+            Bring a question, a rough concept or a real problem. We'll explore it and build
+            what works.
+          </p>
+          <div className="cta-row closing__cta">
             <Link className="btn btn--primary" to="/contact">
-              Enter Thridha Labs
+              Start a project
             </Link>
             <Link className="btn btn--ghost" to="/projects?type=experiment">
-              View experiments
+              Explore our experiments
             </Link>
           </div>
         </Reveal>
@@ -462,31 +483,26 @@ export default function HomePage() {
     (a, b) => Number(b.featured) - Number(a.featured) || a.display_order - b.display_order,
   )
   const selected = sortedProjects.slice(0, 5)
-  const excluded = new Set(selected.map((project) => project.slug))
 
   return (
     <>
-      <HeroSection siteName={siteName} tagline={tagline} description={description} />
-      <IntroSection siteName={siteName} description={description} />
-      <SelectedWorkSection
-        projects={selected}
-        error={projects.error}
-        reload={projects.reload}
-      />
+      <HeroSection />
+      <SelectedWorkSection projects={selected} error={projects.error} reload={projects.reload} />
+      <PracticeSection />
+      <ProcessSection />
+      <TechnologySection projects={sortedProjects} />
+      <ActivityCarousel />
       <ClientsSection
         clients={clients.data?.items ?? []}
         error={clients.error}
         reload={clients.reload}
       />
-      <ExperimentsSection projects={sortedProjects} excluded={excluded} />
-      <ActivityCarousel />
       <TestimonialsSection
         items={testimonials.data?.items ?? []}
         error={testimonials.error}
         reload={testimonials.reload}
       />
-      <PhilosophySection siteName={siteName} />
-      <CTASection />
+      <ClosingSection />
     </>
   )
 }

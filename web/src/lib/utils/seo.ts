@@ -1,11 +1,16 @@
 /**
  * SEO foundation — reusable per-page metadata.
  *
- * Focused on title / description / canonical / basic Open Graph only. Sitemap,
- * robots.txt, JSON-LD and Search Console integration belong to later phases.
+ * Owns title / description / canonical / Open Graph / Twitter / robots. The
+ * canonical origin is domain-aware: it prefers the configured `VITE_SITE_URL`
+ * production origin and otherwise falls back to a real (non-localhost) runtime
+ * origin, refusing to publish localhost URLs. Sitemap, robots.txt and crawler
+ * HTML are served by the backend (see `backend/app/api/routes/seo.py` and the
+ * `/share` routes); JSON-LD is injected per page via `useJsonLd`.
  */
 
 import { useEffect } from 'react'
+import { env } from '../../app/config/env'
 import { useBranding } from '../../app/providers/BrandingProvider'
 import { resolveMediaUrl } from './mediaUrl'
 
@@ -62,17 +67,60 @@ function setCanonical(href: string | null | undefined, managed: ManagedElement[]
   managed.push({ element, previous: existing?.getAttribute('href') ?? null })
 }
 
-function defaultRobotsForLocation(): string | null {
-  if (typeof window === 'undefined' || !window.location) return null
-  if (window.location.pathname.startsWith('/admin')) return 'noindex, nofollow'
+const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1'])
+
+/** True when an origin is a real, publicly resolvable http(s) origin. */
+function isPublicOrigin(origin: string | null | undefined): boolean {
+  if (!origin) return false
+  try {
+    const url = new URL(origin)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+    return !LOCAL_HOSTNAMES.has(url.hostname)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Canonical production origin, or `null` when none is publishable.
+ *
+ * Prefers the configured `VITE_SITE_URL`; otherwise trusts the runtime origin
+ * only when it is not localhost. Returns `null` (rather than a localhost URL)
+ * so callers omit canonical/OG URL tags instead of emitting incorrect ones.
+ */
+export function getSiteOrigin(): string | null {
+  if (isPublicOrigin(env.siteUrl)) return env.siteUrl
+  if (typeof window !== 'undefined' && isPublicOrigin(window.location?.origin)) {
+    return window.location.origin
+  }
   return null
 }
 
-/** Absolute canonical URL for the current app origin + a given path. */
+/**
+ * Path prefixes that must never be indexed: admin and member tooling, first-run
+ * setup, and per-ID certificate verification documents (no search value, and
+ * they can leak the existence of a certificate).
+ */
+const NOINDEX_PREFIXES = ['/admin', '/member', '/setup', '/verify-certificate', '/verify-activity-certificate']
+
+function defaultRobotsForLocation(): string | null {
+  if (typeof window === 'undefined' || !window.location) return null
+  const path = window.location.pathname
+  if (NOINDEX_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) {
+    return 'noindex, nofollow'
+  }
+  return null
+}
+
+/**
+ * Absolute canonical URL for a public path, or `null` when no publishable
+ * production origin is available (never emits localhost).
+ */
 export function absolutePageUrl(path: string): string | null {
-  if (typeof window === 'undefined' || !window.location?.origin) return null
+  const origin = getSiteOrigin()
+  if (!origin) return null
   const normalised = path.startsWith('/') ? path : `/${path}`
-  return `${window.location.origin}${normalised}`
+  return `${origin}${normalised}`
 }
 
 /**

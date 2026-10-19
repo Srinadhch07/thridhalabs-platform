@@ -42,7 +42,7 @@ describe('maintenance through the public layout', () => {
 
   it('renders the app normally when maintenance is off', async () => {
     renderApp({ entry: '/', handlers: { '/api/public/settings': { body: settingsFixture } } })
-    expect(await screen.findByRole('heading', { level: 1, name: /thridha labs/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /exploring what intelligence can become/i })).toBeInTheDocument()
   })
 
   it('does not apply maintenance mode to the admin area', async () => {

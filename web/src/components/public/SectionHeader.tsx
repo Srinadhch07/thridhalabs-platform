@@ -12,9 +12,12 @@ export interface SectionHeaderProps {
   title: ReactNode
   action?: { to: string; label: string }
   id?: string
+  /** Heading level for the title. Defaults to 2; pass 1 for a page's only h1. */
+  level?: 1 | 2
 }
 
-export function SectionHeader({ tag, title, action, id }: SectionHeaderProps) {
+export function SectionHeader({ tag, title, action, id, level = 2 }: SectionHeaderProps) {
+  const Heading = level === 1 ? 'h1' : 'h2'
   return (
     <Reveal className="section-head">
       <div>
@@ -22,9 +25,9 @@ export function SectionHeader({ tag, title, action, id }: SectionHeaderProps) {
           <span className="hud-dot" aria-hidden="true" />
           {tag}
         </p>
-        <h2 id={id} className="section-head__title">
+        <Heading id={id} className="section-head__title">
           {title}
-        </h2>
+        </Heading>
       </div>
       {action && (
         <Link className="section-head__action" to={action.to}>

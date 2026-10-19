@@ -9,6 +9,7 @@ import { useSiteSettings } from '../../app/providers/SiteSettingsProvider'
 
 const BASE_SITE_LINKS = [
   { to: '/projects', label: 'Projects' },
+  { to: '/activities', label: 'Activities' },
   { to: '/clients', label: 'Clients' },
   { to: '/testimonials', label: 'Testimonials' },
   { to: '/about', label: 'About' },
@@ -81,7 +82,7 @@ export function Footer() {
       <div className="shell public-footer__bar">
         <span>{copyright}</span>
         <span>Built in-house — HTML, CSS &amp; React</span>
-        <span>Thridha Labs / indoor lab</span>
+        <span>Websites · Applications · Experiments</span>
       </div>
     </footer>
   )

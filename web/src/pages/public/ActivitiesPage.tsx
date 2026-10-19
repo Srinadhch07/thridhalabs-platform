@@ -54,7 +54,7 @@ export default function ActivitiesPage() {
   return (
     <section className="section">
       <div className="shell">
-        <SectionHeader tag="The lab / activities" title="Programmes, hackathons and projects." />
+        <SectionHeader level={1} tag="The lab / activities" title="Programmes, hackathons and projects." />
 
         <div className="filter-row" role="group" aria-label="Filter activities by type">
           <span className="filter-row__label">Filter</span>

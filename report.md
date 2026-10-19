@@ -561,3 +561,698 @@ public page (issued/revoked/unknown, public work link) and the admin page
 
 Results: `npm run typecheck` clean; `npm run build` succeeds; full web suite
 `328 passed` (30 files). No existing certificate tests changed.
+
+
+# Public Homepage Redesign — Swiss Editorial + Animated Background Paths
+
+## Summary
+
+Redesigned the **public homepage only** into a Swiss editorial / International
+Typographic composition and integrated an adapted animated `BackgroundPaths`
+hero backdrop. The whole page remains driven by the existing public APIs and,
+critically, by the **existing admin-controlled branding theme**: every color is
+a branding CSS variable, so predefined light/dark palettes *and* custom
+admin-configured accent colors all apply. No separate/competing theme system
+was introduced.
+
+## Files created
+
+- `web/src/components/ui/background-paths.tsx` — decorative, theme-aware animated
+  SVG hero backdrop (Framer Motion). Adapted from the supplied shadcn/Tailwind
+  source to this project's CSS conventions.
+- `web/src/test/background-paths.test.tsx` — 3 tests (inert/aria-hidden layer,
+  3 deterministic paths, static under reduced motion).
+
+## Files modified
+
+- `web/src/pages/public/HomePage.tsx` — rewritten composition (hero + numbered
+  editorial sections; removed the old intro/experiments/philosophy/cta-band).
+- `web/src/styles/public.css` — editorial hero, BackgroundPaths layer, editorial
+  section system (`.ed-head`, `.work-editorial`, `.capabilities`, `.closing`),
+  header CTA. **No hard-coded hex colors.**
+- `web/src/components/layout/Header.tsx` — added a distinct "Start a project"
+  contact CTA (Admin link and all routes preserved).
+- `web/src/components/layout/Footer.tsx` — added Activities to site links;
+  refined the footer bar label (all contact/legal links preserved).
+- `docs/ARCHITECTURE.md` — new "Public homepage — Swiss editorial redesign"
+  subsection (theme integration, motion, dependency).
+- `web/package.json` / `web/package-lock.json` — added `framer-motion@^11`.
+
+## Files updated (tests)
+
+- `web/src/test/homepage.test.tsx` — assertions updated to the new editorial
+  copy; added a BackgroundPaths presence test. Coverage preserved.
+- `web/src/test/routing.test.tsx`, `public-media-seo.test.tsx`,
+  `maintenance.test.tsx`, `activities.test.tsx` — the homepage H1 assertion
+  updated from `/thridha labs/i` to the new hero heading
+  `/we turn ideas into digital products/i` (the H1 is no longer the wordmark;
+  the wordmark remains the site brand in header/footer).
+- `web/src/test/theme-tokens.test.ts` — added a guard that `public.css` contains
+  no literal hex colors and that the hero backdrop uses branding tokens.
+
+## Design and animation decisions
+
+- **Editorial composition**: left-aligned oversized hero type
+  ("We turn ideas into digital products."), eyebrow `Independent digital lab`,
+  one supporting sentence, primary `Explore our work` + secondary
+  `Start a project` CTAs. Numbered section headers (01…05) with a thin top rule.
+  Asymmetric "selected work" (lead + stack) and capabilities (intro + numbered
+  list) layouts. Restrained borders, generous whitespace, no card shadows.
+- **BackgroundPaths adaptations**: no `min-h-screen` takeover; absolutely
+  positioned inside the hero (`inset: 0; overflow: clip`); `aria-hidden` +
+  `pointer-events: none`; deterministic durations (`24 + index * 6`) instead of
+  `Math.random()`; strokes blend from `--color-primary`/`--color-secondary`;
+  static render under `prefers-reduced-motion`.
+- **Motion**: reused the existing IntersectionObserver `Reveal` (opacity +
+  transform only). No new scroll listeners, no scroll hijacking, no
+  cursor-follow. Global reduced-motion CSS already neutralizes animation.
+- **Copy removed**: the repetitive "core/online", orbit legend, intro paragraph
+  pair, "no ceremony, no roadmap theatre", philosophy loop and duplicated
+  CTA band were removed. Essential contact/legal/nav content is untouched.
+
+## Dependencies
+
+- Added: `framer-motion@^11.18.2` (web package + lockfile).
+- Reused: React 19, React Router 7, the existing `Reveal`, `ProjectCard`,
+  `ClientTile`, `TestimonialCard`, `TechChips`, `ActivityCarousel`, `MediaTile`
+  and CSS token system. No Tailwind/shadcn migration, no `@radix-ui/react-slot`.
+
+## Existing features / routes preserved
+
+- Public routes unchanged (`/`, `/projects`, `/projects/:slug`, `/activities`,
+  `/activities/:slug`, `/clients`, `/testimonials`, `/about`, `/contact`,
+  `/careers`, `/members/...`, `/verify-certificate/...`,
+  `/verify-activity-certificate/...`).
+- All homepage data hooks unchanged: `usePublicProjects`, `usePublicClients`,
+  `usePublicTestimonials`, `ActivityCarousel` (`usePublicActivities`), and all
+  publication/visibility rules and empty/error states.
+- SEO metadata, canonical URL and JSON-LD (WebSite + Organization) preserved.
+- Admin theme system, admin panel, member portal and backend untouched.
+
+## Theme integration (priority requirement)
+
+- Colors come exclusively from `--color-primary/secondary/accent/background/text`
+  and derived tokens, set at runtime by `BrandingProvider` → `applyBranding()`.
+- Verified programmatically: `public.css` and `background-paths.tsx` contain
+  **zero** literal hex colors (`theme-tokens.test.ts`).
+- Works for all six presets (Arctic White, Ivory & Indigo, Pearl & Emerald,
+  Midnight Slate, Obsidian & Violet, Graphite & Amber) and custom palettes
+  because they all flow through the same five variables.
+
+## Verification commands and actual results
+
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds (Vite 7). JS bundle ~713 kB (gzip ~196 kB), up from
+  ~602 kB due to Framer Motion; noted below.
+- `npx vitest run --no-file-parallelism` — **331 passed (31 files)**. This is the
+  reliable full-suite result.
+- Targeted runs: `homepage.test.tsx` 6 passed; `background-paths.test.tsx` 3
+  passed; `public-chrome.test.tsx` + `routing.test.tsx` + homepage = 30 passed;
+  `theme-tokens.test.ts` 8 passed.
+
+## Known issues / limitations
+
+- **Pre-existing flakiness**: under default file *parallelism* the suite shows a
+  few unrelated failures (e.g. `works.test.tsx`, `progress-reports.test.tsx`,
+  `activities.test.tsx` public index) that all pass in isolation and in the
+  serial run. This matches the previously documented flaky-test condition and is
+  not caused by this change. `branding.test.tsx` can also rotate a failing case
+  between runs (passes 7/7 on re-run) — pre-existing, unrelated to this task.
+- **Visual verification**: the agent cannot render/view screenshots, so layout
+  was verified programmatically (jsdom render assertions + CSS review), not by
+  eye. Manual browser inspection at desktop/tablet/mobile is recommended.
+- **Bundle size**: Framer Motion adds ~110 kB minified. If this matters, the
+  hero animation could be reimplemented with SMIL/CSS keyframes (no dependency).
+- Dead CSS from the previous hero (`wordmark`, `hero-orbit`, `philosophy-*`,
+  `mode-list`) remains in `public.css` but is unused; left in place to keep the
+  change surface minimal.
+
+## Suggested next steps
+
+- Manually inspect the hero and full page at desktop/tablet/mobile widths and
+  across all six presets (incl. a custom palette) in a real browser.
+- Consider code-splitting or a lightweight animation fallback to trim the
+  bundle.
+- Optionally remove the now-unused legacy hero/philosophy CSS in a follow-up.
+- Optionally extend the editorial system to `/projects`, `/activities` and
+  `/about` for a consistent identity.
+
+---
+
+# Mobile Header & Navigation Refinement
+
+## Objective
+
+Refine the public header and mobile navigation so they read as an intentional
+technology-lab interface rather than a generic template: a polished, well-aligned
+hamburger control, a fully opaque high-contrast expanded menu, a dedicated
+**Home** entry, and a **Member Login** action in place of the **Admin** button
+(admin functionality and routes untouched).
+
+## Files changed
+
+- `web/src/components/layout/Navigation.tsx` — added a **Home** item (`/`, with an
+  inline SVG home glyph and `end` matching so it only activates on the exact
+  route), a distinct **Member Login** action (`/member/login`) inside the panel,
+  and kept all existing mobile behaviour (Escape closes, focus trap, body-scroll
+  lock, close-on-navigate, focus restore).
+- `web/src/components/layout/Header.tsx` — removed the public **Admin** button and
+  added a **Member Login** link (`/member/login`) in the desktop actions row
+  alongside **Start a project**.
+- `web/src/styles/public.css` — refined `.menu-toggle` (fixed 46×46px touch
+  target, vertically centered, subtle surface, restrained hover/focus/expanded
+  states, smoother 3-bar → X animation), made the mobile `.mobile-menu` panel
+  **fully opaque** (`var(--color-background)` instead of a translucent mix +
+  backdrop blur), raised mobile nav label contrast to full `--color-text`, added
+  comfortable ≥52px tap rows with dividers, added `.header-login`,
+  `.public-nav__home`, `.public-nav__icon`, `.public-nav__login` styles, a
+  `prefers-reduced-motion` rule for the toggle/panel, and header overflow safety
+  (`min-width: 0`, tighter padding/gap; both header actions collapse into the
+  menu below 900px).
+- `web/src/test/public-chrome.test.tsx` — updated nav-landmark assertions to
+  include **Home** and **Member Login**, asserted the **Admin** link is gone,
+  asserted Member Login targets `/member/login`, and added a
+  close-on-navigate test.
+
+## Header & menu improvements
+
+- Hamburger is now a deliberate 46×46px control at the far right, vertically
+  centered with the brand; balanced spacing via the header grid gap and
+  `min-width: 0` on brand so nothing overflows on narrow screens.
+- Open/closed icon states are visually distinct (bars rotate to an X; middle bar
+  fades and shrinks) with a short `--dur-fast` transition.
+- The expanded panel is solid and layers above content (`--z-overlay` > header
+  `--z-hud`; toggle stays on top at `--z-modal`), so the underlying grid/text can
+  no longer interfere with readability.
+- Keyboard/ARIA preserved: `aria-expanded`/`aria-controls`, "Open/Close menu"
+  accessible name, Escape, focus trap and restore, plus
+  `prefers-reduced-motion` support.
+
+## Member Login route
+
+- **Member Login → `/member/login`** (existing member login route; admin login
+  `/admin/login` and all admin routes/nav remain unchanged and functional).
+
+## Focused verification
+
+- `npx vitest run public-chrome.test.tsx routing.test.tsx homepage.test.tsx
+  --no-file-parallelism` — **31 passed**. (Focused run only; full suite not run
+  per instructions.)
+- `npx vitest run theme-tokens.test.ts` — **8 passed** (public CSS still contains
+  zero literal hex colors; new header/menu styles are fully token-driven).
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds (Vite 7; CSS 102.92 kB / gzip 16.12 kB, JS 720.65 kB
+  / gzip 199.10 kB). Only the pre-existing chunk-size advisory is emitted.
+
+## Needs manual browser inspection
+
+- The agent cannot view screenshots, so the hamburger alignment, panel opacity
+  and tap spacing were verified programmatically (jsdom assertions + CSS review).
+  Confirm at ~360px, ~768px and desktop widths, and across the six branding
+  presets (incl. a custom palette), that the menu is crisp and legible.
+- Verify the exact panel height with a long menu (Careers enabled adds one item)
+  and with the on-screen keyboard open on a real device.
+
+---
+
+# Header & Navigation Layout Bug Fix
+
+## Objective
+
+Fix two layout bugs reported from screenshots: (1) the desktop **Home** link
+overlapping the logo/wordmark, and (2) the mobile expanded menu having excessive
+dead space above Home with an awkward close button. Smallest practical change
+set; visual identity, tokens, routes and auth preserved.
+
+## Files changed
+
+- `web/src/styles/public.css` — header region layout, responsive breakpoint,
+  desktop nav spacing, mobile panel geometry, panel action styles, header
+  containing-block fix.
+- `web/src/components/layout/Navigation.tsx` — panel actions wrapped in
+  `.public-nav__actions`; added a **Start a project** entry to the mobile panel.
+- `web/src/components/layout/Header.tsx` — unchanged this round (Admin already
+  removed; Member Login already present).
+
+## Root causes
+
+1. **Desktop overlap.** `.public-header__inner` used
+   `justify-content: space-between` with a **shrinkable** brand
+   (`min-width: 0`, default `flex-shrink: 1`) and a nav list with **no
+   `min-width: 0`**, so at intermediate widths the brand text overflowed its box
+   to the right and the inline links (Home first) ran into the wordmark. The
+   inline nav genuinely does not fit inside the ~1104px content area once Home
+   was added, so the **900px** mobile breakpoint was too low.
+2. **Mobile dead space / odd close button.** The panel is a child of
+   `.public-header`, which carries `backdrop-filter: blur(10px)`. A
+   `backdrop-filter` (like `filter`/`transform`) makes the element the
+   **containing block for `position: fixed` descendants**, so the panel's
+   `position: fixed` was resolved against the ~70px header (not the viewport) and
+   the `padding-top: calc(76px + 32px)` produced the large void. The only close
+   affordance was the header hamburger, visually detached from the panel.
+
+## Fixes
+
+- **Header region structure:** brand is now `flex: 0 0 auto` (never shrinks),
+  actions are `flex: 0 0 auto`, and the navigation wrapper owns the flexible
+  middle region (`flex: 1 1 auto; min-width: 0; justify-content: center`). The
+  nav list is `flex-wrap: nowrap` and compact (`gap: var(--space-4)`,
+  `letter-spacing: 0.14em`), so links can never collide with the brand.
+- **Deliberate responsive breakpoint:** the hamburger now takes over below
+  **1100px** (was 899px), with a tightened inline nav in the
+  `1100–1279px` band (`gap: var(--space-3)`, `letter-spacing: 0.08em`). Home
+  appears exactly once (only in `Navigation`).
+- **Mobile panel geometry:** the header drops `backdrop-filter` at
+  `≤1099px` (`backdrop-filter: none`, near-solid bar) to remove the containing
+  block; the panel is then anchored with `inset: var(--header-height) 0 0 0`
+  and `z-index: calc(var(--z-hud) - 1)` so it sits directly **under** the header
+  bar and behind the header's close control. Panel padding reduced from
+  `calc(76px + var(--space-6))` to `var(--space-5)`; rows are a consistent 54px
+  with hairline separators and full `--color-text` contrast. The header's 46×46
+  hamburger (turning into an X) now reads as the panel's top-right close.
+- **Panel actions:** Member Login (outlined) + Start a project (primary) grouped
+  in `.public-nav__actions`, hidden on desktop (`min-width: 1100px`) to avoid
+  duplicating the header actions.
+- Body-scroll lock/restore, Escape-to-close, focus trap/restore, ARIA labels and
+  `prefers-reduced-motion` were already in place and are preserved.
+
+## Verification
+
+- `npx vitest run public-chrome.test.tsx routing.test.tsx theme-tokens.test.ts
+  --no-file-parallelism` — **33 passed** (focused run; full suite not run).
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds (Vite 7; only the pre-existing chunk-size advisory).
+
+## Needs manual browser inspection
+
+- jsdom does not perform CSS layout, so the overlap fix and the
+  `backdrop-filter` containing-block fix were verified by CSS reasoning + the
+  build, **not** by rendered pixels. Confirm in a real browser at ~360px,
+  ~768px, ~1024px, ~1100px, ~1280px and full desktop, across the six branding
+  presets (incl. a custom palette): no brand/nav overlap, panel flush under the
+  header with no dead space, and correct stacking over page content.
+
+---
+
+# Mobile Hamburger Position & Menu Refinement
+
+## Root cause of the hamburger sitting too far left
+
+`.public-header__inner` lost its `justify-content` when it was converted to the
+three-region layout in the previous fix. On mobile the panel is `position:
+fixed` (out of flow) and the `.header-actions` group is hidden and empty, so the
+only in-flow children of the header row were the brand and the hamburger. With
+`justify-content: flex-start` (the default) both packed to the **left**, leaving
+the hamburger floating next to the wordmark instead of at the right edge. (A
+secondary contributing factor: the header row is `width: min(1200px, 100%)`
+centred — harmless on mobile where it resolves to `100%`, but it means the right
+edge is defined by the row's own padding, not by a stray margin.)
+
+## Files and CSS rules changed
+
+- `web/src/styles/public.css`:
+  - `.public-header__inner` → restored `justify-content: space-between`.
+  - Mobile (`@media max-width: 1099px`): mobile-safe padding
+    `max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) …`,
+    `.public-brand { margin-right: auto }`, `--header-height: 66px`, and hid
+    `.header-cta`/`.header-login` (no actions in the closed mobile bar).
+  - `.mobile-menu`: fully opaque `var(--color-background)`, `inset: var(--header-height) 0 0 0`,
+    `overflow: hidden`, safe-area bottom/left/right padding, tighter `gap`.
+  - `.public-nav__list` / `li` / `a` (mobile): 15px labels, `letter-spacing: 0.03em`,
+    `min-height: 46px`, `padding: 8px 4px`, hairline separators.
+- `web/src/components/layout/Navigation.tsx` / `Header.tsx`: **unchanged** this
+  round (structure already correct; issue was purely CSS layout).
+
+## How the right-edge alignment was established
+
+`space-between` on the header row plus `margin-right: auto` on the brand makes the
+brand absorb the free space and push the hamburger flush to the right. Because
+the header row is `width: 100%` on mobile with `padding-inline: max(14px,
+env(safe-area-inset-right))`, the hamburger's right edge lands **14px** from the
+viewport edge (within the requested 12–16px) and the control stays 46px (within
+44–48px). No arbitrary margins or absolute positioning were used.
+
+## Menu height and typography
+
+Removed excess whitespace (panel top padding 24px → 12px, row height 54px → 46px,
+letter-spacing 0.12em → 0.03em, font 18px → 15px, no internal scrolling). Both
+action buttons (Member Login outlined + Start a project primary) remain at the
+bottom. Programmatic height check (8 rows + 2 buttons, 66px header):
+
+| Viewport | Available | Menu needs | Slack | Fits |
+|----------|-----------|------------|-------|------|
+| 390×844  | 778px     | ~531px     | 247px | yes  |
+| 430×932  | 866px     | ~531px     | 335px | yes  |
+| 360×667  | 601px     | ~531px     | 70px  | yes  |
+
+Every item is visible at once — no scrolling, no hidden links. The overlay is
+fully opaque (`--color-background`) and sits below the header within its stacking
+context, so homepage text/grid cannot bleed through; body scroll is locked while
+open and restored on close; Escape, focus trap/restore, ARIA labels and
+`prefers-reduced-motion` are preserved.
+
+## Verification
+
+- `npx vitest run public-chrome.test.tsx --no-file-parallelism` — **7 passed**.
+- `npx vitest run routing.test.tsx theme-tokens.test.ts --no-file-parallelism` —
+  **26 passed**.
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds (Vite 7; only the pre-existing chunk-size advisory).
+- Programmatic viewport math (table above) confirms the menu fits without scroll.
+
+## Browser visual verification
+
+**Not possible here.** No browser-automation tooling is configured in the repo
+(only `jsdom`, which performs no layout), and the environment cannot render
+pixels/screenshots. The hamburger's right-edge position, the panel's opacity and
+the menu height were therefore validated by CSS reasoning and the programmatic
+height calculation above — **not** by visual inspection. Please confirm in a real
+browser (or device emulator) at 390×844 and 430×932.
+
+## Remaining uncertainty for manual inspection
+
+- Confirm the hamburger sits ~14px from the right edge with the brand left.
+- Confirm the opaque panel fully masks the hero and that no grid/hero text bleeds
+  through at the panel edges.
+- Confirm all 8 links + 2 action buttons are visible without scrolling (they
+  should, with ≥70px slack even on a 360×667 device).
+- Confirm the on-screen keyboard / safe-area insets on a notched device do not
+  push the bottom action buttons out of view.
+
+---
+
+# Member Work Editor — Card Width & Alignment Fix
+
+## Root cause
+
+On `/member/works/:workId/edit`, the **status/certification `MemberCard`** was a
+direct child of `.member-page`, while the Details / Cover image / External links /
+Content cards lived inside `<form className="member-stack member-form">`.
+
+- `.member-main` (the content column) is `max-width: 1060px`, so `.member-page`
+  spans up to 1060px.
+- `.member-form` is capped at `max-width: 860px`.
+
+Because the status card was **outside** the `.member-form` container, it
+stretched to the full `.member-page` width (1060px), whereas the form cards were
+constrained to 860px. Result: the status/certification card was visibly wider
+than the Details card below it and their right edges did not line up. No
+`.member-page`, `.member-stack` or `.member-card` rule was missing — the two
+groups simply had different width contracts.
+
+## Files changed
+
+- `web/src/pages/member/WorkEditorPage.tsx` — wrapped the status/certification
+  `MemberCard` (previously a bare child of `.member-page`) in
+  `<div className="member-stack member-form">`, matching the pattern already used
+  by `MemberProfilePage` for its non-form summary card.
+
+No CSS was added or changed. No other member page, the sidebar, topbar, header,
+colors, typography, APIs, auth or data models were touched.
+
+## Alignment fix
+
+Both the status group and the form now use the identical container contract
+(`.member-stack` for vertical rhythm + `.member-form` for the 860px max-width), so
+every editor card shares the same left and right boundaries and the same
+`--space-6` stack gap. Internal card styling was already correct and is
+preserved: `.member-card` padding `--space-5`, `border-radius: var(--radius-lg)`,
+`1px solid var(--border)`; `.work-editor__status` is a wrapping flex row;
+`.work-cert-panel` is a flex column with a top hairline; `.work-link-row` already
+uses `minmax(0, …)` grid columns so inputs cannot overflow.
+
+## Responsiveness
+
+`.member-form`'s `max-width: 860px` has no media-query overrides, so:
+
+- **Desktop (>960px):** both groups are 860px, centred in the 1060px column with
+  aligned edges.
+- **Tablet (≤960px):** sidebar collapses; `.member-main` narrows; both groups
+  fill the available width identically and remain aligned.
+- **Mobile (≤620px):** both groups fill the padded content width; the status row
+  and link rows wrap; no horizontal overflow.
+
+## Verification
+
+- `npx vitest run src/test/works.test.tsx --no-file-parallelism` — **15 passed**.
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds (Vite 7; only the pre-existing chunk-size advisory).
+- Inspected the actual layout rules (`.member-page`, `.member-main`,
+  `.member-stack`, `.member-form`, `.member-card`, `.work-*`) rather than adding
+  arbitrary overrides.
+
+## Browser visual verification
+
+**Not possible here.** No browser-automation tooling is configured (only `jsdom`,
+which performs no layout) and the environment renders no pixels. The width
+equality was verified by reading the layout rules and the container change above,
+**not** by screenshot. Please confirm in a real browser that the status,
+publication-review, certification and Details cards now share one width with
+aligned right edges at desktop, tablet and mobile widths.
+
+---
+
+# Member Work Editor — Vertical Gap Fix
+
+## Root cause
+
+The status/certification card and the Details form are adjacent block siblings in
+`.member-page`. The perceived excessive separation was the status card's own
+generous internal bottom padding (`.member-card { padding: var(--space-5) }`, 24px
+on each side) plus the trailing `.work-cert-panel` spacing, which made the Details
+card appear far from the Certification section.
+
+## Change made (CSS only)
+
+`web/src/styles/works.css`:
+
+- `.member-page > .member-stack.member-form > .member-card { padding-bottom: var(--space-3) }`
+  — trims the status card's bottom padding (24px → 12px) so the Details card sits
+  closer.
+- `.member-page > .member-stack.member-form + .member-stack.member-form { margin-top: var(--space-2) }`
+  — sets a deliberate 8px gap between the two cards, within the requested
+  8–12px range.
+
+Both rules are scoped to the Work Editor's two top-level stacks only. Card widths,
+borders, colors, internal padding, typography and all functionality are unchanged.
+
+## Verification
+
+- `npx vitest run src/test/works.test.tsx --no-file-parallelism` — **15 passed**.
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds.
+
+## Browser visual verification
+
+Not possible here (jsdom has no layout engine). Confirm the gap between the
+Certification/status card and the Details card reads as ~8–12px in a real browser.
+
+---
+
+# Contact Page Redesign
+
+## Design changes
+
+Replaced the plain "Get in touch" + grey boxes layout with a deliberate,
+art-directed **Editorial Technology Lab + Premium Digital Studio** experience,
+built entirely from existing components, tokens and brand patterns.
+
+1. **Hero (`contact-hero`)** — reuses the shared, theme-aware `CosmicField`
+   canvas backdrop (same component as the homepage hero) plus the standard
+   legibility vignette. Eyebrow `Contact / Start a conversation`, a large
+   expressive headline **"Have something worth building?"** (second line as an
+   outlined "ghost" line via `-webkit-text-stroke`), the supplied supporting
+   text, and a primary **Start a Conversation** action that scrolls to the
+   contact section. A restrained **connected-systems SVG diagram** (fine grid,
+   node links and a primary-filled hub node) provides the experimental/lab motif
+   on the right; it is decorative but carries an accessible `role="img"` label.
+2. **Reach the lab (`contact-methods`)** — contact channels rendered as
+   equal-height cards in a responsive `auto-fit` grid. Each has a minimal inline
+   SVG icon, a clear heading, concise supporting text and the contact detail as
+   an interactive link with a hover treatment (border/background lift + arrow
+   nudge). Email uses `mailto:`; WhatsApp builds a `https://wa.me/<number>` link
+   when the configured value is a phone number (and is rendered as static text
+   otherwise); phone uses `tel:`; address is static. Uses only the configured
+   contact values — nothing is invented or hardcoded. Social links are preserved
+   under an "Elsewhere" sub-block.
+3. **Collaboration (`collab-list`)** — a compact editorial list (index number +
+   title + concise detail, hairline separators) covering websites/applications,
+   business digital presence, product ideas/experiments and collaboration.
+4. **Closing (`closing`)** — reuses the homepage `.closing` section:
+   **"Every good build starts with a conversation."** with the supplied support
+   text and actions linking to the configured email and/or WhatsApp.
+5. The old `contact-grid` / `contact-card` styles were replaced with the new
+   `contact-*` / `collab-*` rules. Copy was refined to the brand voice; no client
+   claims or statistics were added.
+
+## Files changed
+
+- `web/src/pages/public/ContactPage.tsx` — full page redesign.
+- `web/src/styles/public.css` — replaced the `contact` block with the new
+  art-directed styles (theme-token blended, no literal hex).
+- `web/src/test/public-pages.test.tsx` and `web/src/test/routing.test.tsx` —
+  updated the contact-page H1 expectation from `/get in touch/i` to the new
+  intentional headline `/have something worth building/i`.
+
+No header/footer, other public pages, admin, member portal, APIs, auth, data
+models, `.env` or the sibling prototype directory were touched. No new
+dependencies.
+
+## Responsive & accessibility checks
+
+- **Desktop:** two-column hero (copy + diagram); contact cards in a multi-column
+  `auto-fit` grid.
+- **Tablet/mobile (≤900px):** hero collapses to one column with the diagram
+  first; contact cards stack; collaboration items remain a single column; no
+  horizontal overflow (`min-width: 0` on the grid items and `overflow-wrap:
+  anywhere` on long contact strings).
+- **Accessibility:** single `h1`, section headings via `aria-labelledby`, the
+  diagram labelled with `role="img"` + `aria-label`, inline icons `aria-hidden`,
+  links/buttons have clear accessible names, focus states come from the global
+  `:focus-visible` rule, and motion respects the global `prefers-reduced-motion`
+  block (transitions/animations neutralized).
+
+## Focused verification & build
+
+- `npx vitest run public-pages.test.tsx theme-tokens.test.ts --no-file-parallelism`
+  — **21 passed** (theme-tokens asserts `public.css` still contains **zero**
+  literal hex colors).
+- `npx vitest run routing.test.tsx --no-file-parallelism` — **18 passed**.
+- `npx vitest run public-pages public-chrome homepage public-media-seo
+  public-members --no-file-parallelism` — **44 passed**.
+- `npm run typecheck` — clean. `npm run build` — succeeds.
+
+## Remaining issues requiring browser inspection
+
+- jsdom performs no layout, so the hero composition, diagram scaling, card
+  equal-height behaviour and the WhatsApp/email link rendering were verified by
+  CSS reasoning + tests, **not** by pixels. Confirm visually at ~360px, ~768px
+  and full desktop, and across a light and a dark branding preset (the hero and
+  diagram blend from `--color-*`, so both must read correctly).
+- Confirm the diagram's `-webkit-text-stroke` ghost line is legible on light
+  themes (the stroke blends from `--color-text`, so it should adapt).
+
+---
+
+# Contact Page Artwork Refinement
+
+## What changed
+
+Refined the existing abstract hero visualization (same concept: dark backdrop,
+warm amber glow, orbital curves, interconnected nodes) into a **deliberate
+orbital composition** — no new dependency, no stock imagery.
+
+**`web/src/pages/public/ContactPage.tsx` (`ContactDiagram`)**
+
+- Removed the arbitrary 6×6 full-bleed grid (`contact-hero__diagram-grid`).
+- Replaced the scattered straight polylines with three **concentric orbital
+  rings** (rotated ellipses) and five **radial connectors** from a central core
+  to nodes placed *on* the rings — a clear hub-and-spoke reading of
+  interconnected systems.
+- Added an **intelligence core**: a soft layered radial gradient
+  (`contact-core`) with a thin ring and a small accent centre dot, plus a
+  restrained ambient halo (`contact-halo`).
+- Added a subtle `feDropShadow` on the nodes for depth.
+- Updated the accessible `role="img"` label to describe the new composition.
+
+**`web/src/styles/public.css` (contact section)**
+
+- Removed `.contact-hero__diagram-grid` rules.
+- Orbit rings use faint `--color-text`-blended hairlines (12% / 9%).
+- Connectors are faint primary-tinted dotted lines (30%) instead of bright solid
+  strokes — clearer hierarchy, less clutter.
+- Core/halo gradient stops are styled via CSS classes (`--color-accent` /
+  `--color-primary`) so the artwork follows the runtime branding theme.
+- Nodes: dark fill with a restrained secondary stroke; the hub node is a solid
+  primary fill (4%→ is now deliberate, not full-bright).
+- Refined sizing: diagram `width: min(100%, 380px)` with
+  `max-height: min(52vh, 380px)` so it never dominates or grows excessively tall;
+  mobile (≤900px) caps it to `min(58%, 260px)` / `max-height: min(40vh, 260px)`.
+  The hero's `overflow: clip` prevents any clipping/overflow.
+
+The visualization is **static** (no animation added), so `prefers-reduced-motion`
+requires no new handling; contact email/WhatsApp remain fully visible and
+interactable in the section below.
+
+## Focused verification
+
+- `npx vitest run public-pages.test.tsx theme-tokens.test.ts --no-file-parallelism`
+  — **21 passed** (`theme-tokens` confirms `public.css` still has **zero** literal
+  hex colors; all artwork colors blend from branding tokens).
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds.
+
+## Remaining browser inspection
+
+- jsdom has no layout, so the orbital composition, gradient lighting, node depth
+  and mobile sizing were verified by CSS reasoning + tests, not pixels. Confirm
+  visually at ~360px, ~768px and desktop, on both a light and a dark branding
+  preset (the core, halo and connectors all derive from `--color-*`).
+
+---
+
+## Technical SEO optimization
+
+**Goal**: a correct, maintainable SEO foundation across public pages — unique
+titles/descriptions, domain-aware canonicals, sitemap/robots, social metadata
+and structured data — without ever publishing localhost URLs or leaking private
+content.
+
+**Audit findings**
+
+- Backend SEO already existed: `/sitemap.xml` + `/robots.txt`
+  (`backend/app/api/routes/seo.py`, URLs from `FRONTEND_URL`, `503` when unset)
+  and crawler-readable `/share/*` OG documents + 1200x630 preview images.
+- **Gap 1 — localhost canonicals**: `absolutePageUrl` used
+  `window.location.origin` unconditionally, so a local dev/preview build emitted
+  `http://localhost:5173` as the canonical/OG URL.
+- **Gap 2 — robots coverage**: only `/admin` defaulted to `noindex`; `/member`,
+  `/setup` and per-ID certificate verification pages were indexable.
+- **Gap 3 — sitemap**: the static `/activities` listing was missing.
+- **Gap 4 — headings**: `ActivitiesPage` had no `<h1>` (used a section `h2`).
+
+**Changes**
+
+- `web/src/app/config/env.ts`: added `VITE_SITE_URL` (trimmed) as `env.siteUrl`
+  / `SITE_URL`.
+- `web/src/lib/utils/seo.ts`:
+  - `getSiteOrigin()` — prefers `VITE_SITE_URL`; otherwise trusts only a real
+    (non-localhost) runtime origin; returns `null` rather than a localhost URL.
+  - `absolutePageUrl(path)` — builds canonical/OG URLs from `getSiteOrigin()`,
+    returning `null` when no publishable origin exists (tags are then omitted).
+  - `defaultRobotsForLocation()` — defaults `noindex, nofollow` for `/admin`,
+    `/member`, `/setup`, `/verify-certificate/*` and
+    `/verify-activity-certificate/*`.
+- `web/src/components/public/SectionHeader.tsx`: optional `level` prop (1|2) so
+  a page can render its only heading as `<h1>` while keeping the same markup.
+- `web/src/pages/public/ActivitiesPage.tsx`: renders its heading with
+  `level={1}` (fixes the missing `<h1>`).
+- `backend/app/api/routes/seo.py`: added `/activities` to `_STATIC_PATHS`.
+- `web/.env.example`: documented `VITE_SITE_URL`.
+- Tests: new `web/src/test/seo.test.ts` (domain-aware canonical + robots
+  prefixes: 8 cases); updated `public-media-seo`/`share` assertions to a
+  configured test origin (`VITE_SITE_URL=https://thridhalabs.test`, set in
+  `vite.config.ts` `test.env`); `test_seo_routes.py` now blanks `FRONTEND_URL`
+  at the process level so it overrides the repository `.env` (fixes a
+  pre-existing, environment-dependent failure — the real `.env` sets
+  `FRONTEND_URL=https://thridhalabs.in`).
+
+**Focused verification**
+
+- `npx vitest run seo public-media-seo share public-pages routing` — **54 passed**.
+- `npx vitest run activities homepage maintenance public-chrome public-pages
+  routing states careers` — **98 passed**.
+- `npm run typecheck` — clean. `npm run build` — succeeds (pre-existing
+  chunk-size advisory only).
+- `pytest tests/test_seo_routes.py` — **3 passed** (was 2 passed / 1 failed on
+  the pre-existing `.env`-dependent test).
+
+**Needs production configuration**
+
+- Set `VITE_SITE_URL` (e.g. `https://thridhalabs.in`) in the production web
+  build so canonical/OG URLs are emitted; `FRONTEND_URL` must already be set for
+  the backend sitemap/robots. Without `VITE_SITE_URL`, canonical/OG URL tags are
+  omitted site-wide rather than pointing at localhost.
+
+
+

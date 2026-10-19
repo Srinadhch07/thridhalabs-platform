@@ -62,9 +62,14 @@ export function Header() {
           {brandMark(siteName)}
         </Link>
         <Navigation />
-        <Link to="/admin" className="header-admin">
-          Admin
-        </Link>
+        <div className="header-actions">
+          <Link to="/contact" className="header-cta">
+            Start a project
+          </Link>
+          <Link to="/member/login" className="header-login">
+            Member Login
+          </Link>
+        </div>
       </div>
       <div className="public-header__progress" aria-hidden="true" />
     </header>

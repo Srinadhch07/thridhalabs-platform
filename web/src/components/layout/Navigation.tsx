@@ -4,11 +4,12 @@
  * On desktop the wrapper is inline; from 900px down it becomes a fixed overlay
  * panel toggled by the menu button. Keyboard behaviour: Escape closes, focus is
  * trapped inside the open menu, body scroll is locked, and focus is returned
- * to the trigger on close.
+ * to the trigger on close. The mobile panel is fully opaque and layered above
+ * page content so the labels always keep strong contrast.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useCareers } from '../../app/providers/CareersProvider'
 
 const BASE_NAV_ITEMS = [
@@ -19,6 +20,28 @@ const BASE_NAV_ITEMS = [
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
 ] as const
+
+function HomeIcon() {
+  return (
+    <svg
+      className="public-nav__icon"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M3.5 10.5 12 4l8.5 6.5" />
+      <path d="M5.5 9.5V19h13V9.5" />
+      <path d="M10 19v-5h4v5" />
+    </svg>
+  )
+}
 
 export function Navigation() {
   const [open, setOpen] = useState(false)
@@ -92,6 +115,12 @@ export function Navigation() {
       >
         <nav className="public-nav" aria-label="Primary">
           <ul className="public-nav__list">
+            <li>
+              <NavLink to="/" end onClick={close} className="public-nav__home">
+                <HomeIcon />
+                Home
+              </NavLink>
+            </li>
             {navItems.map((item) => (
               <li key={item.to}>
                 <NavLink to={item.to} onClick={close}>
@@ -101,6 +130,14 @@ export function Navigation() {
             ))}
           </ul>
         </nav>
+        <div className="public-nav__actions">
+          <Link to="/member/login" className="public-nav__login" onClick={close}>
+            Member Login
+          </Link>
+          <Link to="/contact" className="public-nav__cta" onClick={close}>
+            Start a project
+          </Link>
+        </div>
       </div>
     </>
   )

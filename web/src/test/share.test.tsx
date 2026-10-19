@@ -11,6 +11,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ShareActions } from '../components/public/ShareActions'
+import { SITE_URL } from '../app/config/env'
 import { publicMemberFixture } from './fixtures'
 import { renderApp } from './helpers'
 
@@ -108,14 +109,14 @@ describe('member page sharing', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Ada Lovelace' })).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: /copy link/i })).toBeInTheDocument()
 
-    const canonical = `${window.location.origin}/members/${MEMBER_ID}`
+    const canonical = `${SITE_URL}/members/${MEMBER_ID}`
     const x = screen.getByRole('link', { name: /share on x/i })
     expect(x.getAttribute('href')).toContain(encodeURIComponent(canonical))
 
     await waitFor(() => {
       const image = document.head.querySelector('meta[property="og:image"]')
       expect(image?.getAttribute('content')).toBe(
-        `${window.location.origin}/share/members/${MEMBER_ID}/image`,
+        `${SITE_URL}/share/members/${MEMBER_ID}/image`,
       )
     })
   })

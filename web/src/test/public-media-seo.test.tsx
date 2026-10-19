@@ -3,6 +3,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { renderApp } from './helpers'
+import { SITE_URL } from '../app/config/env'
 import {
   brandingFixture,
   clientsFixture,
@@ -108,7 +109,7 @@ describe('canonical urls and open graph', () => {
       )
       // Social previews use the generated share card even when a thumbnail exists.
       expect(metaContent('meta[property="og:image"]')).toBe(
-        `${window.location.origin}/share/projects/atlas-engine/image`,
+        `${SITE_URL}/share/projects/atlas-engine/image`,
       )
     })
   })
@@ -140,7 +141,7 @@ describe('canonical urls and open graph', () => {
 describe('json-ld', () => {
   it('emits Organization + WebSite blocks on the home page', async () => {
     renderApp({ entry: '/' })
-    await screen.findByRole('heading', { level: 1, name: /thridha labs/i })
+    await screen.findByRole('heading', { level: 1, name: /exploring what intelligence can become/i })
     await waitFor(() => {
       const types = jsonLdBlocks().map((block) => block['@type'])
       expect(types).toContain('Organization')

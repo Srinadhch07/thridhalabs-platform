@@ -1,4 +1,10 @@
-/** Home page — Phase 6 hero, section presence and data-driven behaviour. */
+/**
+ * Home page — Swiss editorial hero, section presence and data-driven behaviour.
+ *
+ * The hero was redesigned (oversized editorial headline + animated
+ * BackgroundPaths backdrop + concise CTAs). Data sections remain driven by the
+ * same public APIs and hide themselves when there is no content.
+ */
 
 import { screen, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
@@ -6,35 +12,44 @@ import { renderApp } from './helpers'
 import { clientsFixture, projectsFixture, testimonialsFixture } from './fixtures'
 
 describe('home page without content', () => {
-  it('renders the hero, intro, philosophy and CTA', async () => {
+  it('renders the cosmic editorial hero, practice and closing invitation', async () => {
     renderApp({ entry: '/' })
-    expect(await screen.findByRole('heading', { level: 1, name: /thridha labs/i })).toBeInTheDocument()
-    expect(screen.getAllByText('We experiment with intelligence.').length).toBeGreaterThan(0)
-    expect(screen.getByRole('heading', { name: /ideas connect/i })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /Something interesting is being built/i })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /exploring what intelligence can become/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /an ai-first lab that experiments, builds and delivers/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /have an idea worth experimenting on/i })).toBeInTheDocument()
   })
 
   it('hides data sections when there is no content', async () => {
     renderApp({ entry: '/' })
-    await waitFor(() => expect(screen.queryByText(/running, not promised/i)).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText(/things we've built/i)).not.toBeInTheDocument())
     expect(screen.queryByText(/People we build with/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/What people say/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/Experiments, live in the lab/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Technology in use/i)).not.toBeInTheDocument()
   })
 
-  it('provides CTA links to projects and experiments', async () => {
+  it('provides hero and closing CTA links to projects and contact', async () => {
     renderApp({ entry: '/' })
-    expect(await screen.findByRole('link', { name: 'Explore the lab' })).toHaveAttribute('href', '/projects')
-    expect(screen.getByRole('link', { name: 'See experiments' })).toHaveAttribute(
-      'href',
-      '/projects?type=experiment',
-    )
-    expect(screen.getByRole('link', { name: 'Enter Thridha Labs' })).toHaveAttribute('href', '/contact')
+    const experimentLinks = await screen.findAllByRole('link', { name: 'Explore our experiments' })
+    experimentLinks.forEach((link) => expect(link).toHaveAttribute('href', '/projects?type=experiment'))
+    const buildLinks = screen.getAllByRole('link', { name: /see what we're building/i })
+    buildLinks.forEach((link) => expect(link).toHaveAttribute('href', '/projects'))
+    const projectLinks = screen.getAllByRole('link', { name: 'Start a project' })
+    projectLinks.forEach((link) => expect(link).toHaveAttribute('href', '/contact'))
+  })
+
+  it('renders the cosmic field as a decorative hidden layer', async () => {
+    renderApp({ entry: '/' })
+    await screen.findByRole('heading', { level: 1, name: /exploring what intelligence can become/i })
+    const backdrop = document.querySelector('.cosmic-field')
+    expect(backdrop).not.toBeNull()
+    expect(backdrop).toHaveAttribute('aria-hidden', 'true')
   })
 })
 
 describe('home page with content', () => {
-  it('shows selected work, clients, experiments and testimonials from the APIs', async () => {
+  it('shows selected work, clients and testimonials from the APIs', async () => {
     renderApp({
       entry: '/',
       handlers: {
@@ -43,7 +58,7 @@ describe('home page with content', () => {
         '/api/public/testimonials': { body: testimonialsFixture() },
       },
     })
-    expect(await screen.findByText('Running, not promised.')).toBeInTheDocument()
+    expect(await screen.findByText("Things we've built, running now.")).toBeInTheDocument()
     expect(screen.getByText('Atlas Engine')).toBeInTheDocument()
     expect(screen.getByText('People we build with.')).toBeInTheDocument()
     expect(screen.getAllByText('Acme Co').length).toBeGreaterThan(0)
@@ -56,14 +71,5 @@ describe('home page with content', () => {
     expect(await screen.findByText('Technology in use')).toBeInTheDocument()
     expect(screen.getAllByText('Python').length).toBeGreaterThan(0)
     expect(screen.getAllByText('LLMs').length).toBeGreaterThan(0)
-  })
-
-  it('ships a bedroom-lab philosophy loop, not fabricated claims', async () => {
-    renderApp({ entry: '/' })
-    expect((await screen.findAllByText('Build')).length).toBeGreaterThan(0)
-    expect(screen.getByText('Break')).toBeInTheDocument()
-    expect(screen.getByText('Learn')).toBeInTheDocument()
-    expect(screen.getByText('Repeat')).toBeInTheDocument()
-    expect(screen.getAllByText(/No ceremony, no roadmap theatre/i).length).toBeGreaterThan(0)
   })
 })

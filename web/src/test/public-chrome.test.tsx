@@ -24,9 +24,27 @@ describe('public navigation', () => {
     installFetchMock(defaultHandlers())
     navigationFixture()
     const nav = screen.getByRole('navigation', { name: 'Primary' })
-    for (const label of ['Projects', 'Clients', 'Testimonials', 'About', 'Contact']) {
+    for (const label of ['Home', 'Projects', 'Clients', 'Testimonials', 'About', 'Contact']) {
       expect(nav).toContainElement(screen.getByRole('link', { name: label }))
     }
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
+    // Member Login is a distinct action inside the menu, not part of the nav list.
+    expect(screen.getByRole('link', { name: 'Member Login' })).toHaveAttribute(
+      'href',
+      '/member/login',
+    )
+  })
+
+  it('closes the mobile menu when a navigation link is clicked', async () => {
+    const user = userEvent.setup()
+    installFetchMock(defaultHandlers())
+    navigationFixture()
+    await user.click(screen.getByRole('button', { name: 'Open menu' }))
+    expect(screen.getByRole('button', { name: 'Close menu' })).toHaveAttribute('aria-expanded', 'true')
+    await user.click(screen.getByRole('link', { name: 'Home' }))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false'),
+    )
   })
 
   it('toggles the mobile menu and reflects state on the trigger', async () => {
@@ -56,12 +74,14 @@ describe('public navigation', () => {
 })
 
 describe('public header + brand', () => {
-  it('renders the wordmark brand, admin link and header progress bar', () => {
+  it('renders the wordmark brand, member login link and header progress bar', () => {
     renderApp({ entry: '/' })
     const brands = screen.getAllByRole('link', { name: /thridha labs/i })
     expect(brands.length).toBeGreaterThan(0)
     brands.forEach((brand) => expect(brand).toHaveAttribute('href', '/'))
-    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
+    expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument()
+    const loginLinks = screen.getAllByRole('link', { name: 'Member Login' })
+    loginLinks.forEach((link) => expect(link).toHaveAttribute('href', '/member/login'))
     expect(document.querySelector('.public-header__progress')).not.toBeNull()
   })
 })

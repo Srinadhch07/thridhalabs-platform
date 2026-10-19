@@ -73,8 +73,10 @@ describe('about page', () => {
 describe('contact page', () => {
   it('renders configured channels and social links', async () => {
     renderApp({ entry: '/contact' })
-    expect(await screen.findByRole('heading', { level: 1, name: /get in touch/i })).toBeInTheDocument()
-    expect(await screen.findByText('Email')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /have something worth building/i }),
+    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Email' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'hello@thridhalabs.com' }).length).toBeGreaterThan(0)
   })
 

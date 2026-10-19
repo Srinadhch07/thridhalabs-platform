@@ -21,7 +21,7 @@ router = APIRouter()
 _SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 # Static public routes (align with the frontend AppRouter).
-_STATIC_PATHS = ("/", "/projects", "/clients", "/testimonials", "/about", "/contact")
+_STATIC_PATHS = ("/", "/projects", "/activities", "/clients", "/testimonials", "/about", "/contact")
 
 
 def _absolute(base: str, path: str) -> str:
