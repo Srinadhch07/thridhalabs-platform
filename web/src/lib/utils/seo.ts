@@ -124,6 +124,22 @@ export function absolutePageUrl(path: string): string | null {
 }
 
 /**
+ * Absolute URL for the Share button — unlike the canonical URL it is never
+ * `null`: it prefers the configured production origin, then falls back to the
+ * current runtime origin (including localhost). Sharing a page must always
+ * work, even when no canonical production origin is configured for SEO.
+ */
+export function shareUrl(path: string): string {
+  const normalised = path.startsWith('/') ? path : `/${path}`
+  const origin =
+    getSiteOrigin() ??
+    (typeof window !== 'undefined' && window.location?.origin
+      ? window.location.origin
+      : '')
+  return `${origin}${normalised}`
+}
+
+/**
  * Server-generated 1200x630 social preview images (see the backend `/share`
  * routes). Kept relative so they always point at the current public origin.
  */
@@ -137,6 +153,11 @@ export function projectShareImagePath(slug: string): string {
 
 export function workShareImagePath(memberId: string, slug: string): string {
   return `/share/members/${encodeURIComponent(memberId)}/works/${encodeURIComponent(slug)}/image`
+}
+
+/** The branded general-purpose 1200x630 card for non-entity pages. */
+export function siteShareImagePath(): string {
+  return '/share/site/image'
 }
 
 /** Apply page metadata immediately and return a cleanup that reverts it. */
@@ -191,4 +212,15 @@ export function useBrandingOgImage(): string | null {
   const { data } = useBranding()
   const id = data?.media?.og_image
   return id ? resolveMediaUrl(id, 'md') : null
+}
+
+/**
+ * Default Open Graph image for non-entity pages (homepage, About, Projects
+ * list, Clients, Testimonials, Contact, …): the always-large branded card from
+ * the backend `/share/site/image` route, falling back to the configured
+ * branding OG image when no canonical origin is configured (dev/preview).
+ */
+export function useDefaultOgImage(): string | null {
+  const brandingOgImage = useBrandingOgImage()
+  return absolutePageUrl(siteShareImagePath()) ?? brandingOgImage
 }

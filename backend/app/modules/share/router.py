@@ -10,6 +10,8 @@ these documents for social crawlers without touching the SPA.
 - `GET /share/projects/{slug}/image`              → 1200x630 JPEG
 - `GET /share/members/{member_id}/works/{slug}`   → work card
 - `GET /share/members/{member_id}/works/{slug}/image` → 1200x630 JPEG
+- `GET /share/site`                                → branded general card
+- `GET /share/site/image`                          → 1200x630 JPEG
 
 Unknown, private or unpublished targets return an identical `noindex` 404 —
 existence is never leaked. Maintenance mode short-circuits with the standard
@@ -71,6 +73,20 @@ async def _image_or_404(build, *args) -> Response:
     # A missing entity raises the standard 404 error envelope (the HTML
     # document that referenced this image is itself a 404).
     payload = await build(*args)
+    return _image_response(await service.render(payload))
+
+
+@router.get("/share/site")
+async def share_site(request: Request) -> Response:
+    """The branded general-purpose document for the homepage and pages with no
+    dedicated share surface (About, Projects list, Clients, Testimonials, …)."""
+    payload = await service.site_payload(request)
+    return _html_response(render_share_html(payload.card))
+
+
+@router.get("/share/site/image")
+async def share_site_image(request: Request) -> Response:
+    payload = await service.site_payload(request)
     return _image_response(await service.render(payload))
 
 

@@ -114,18 +114,13 @@ describe('canonical urls and open graph', () => {
     })
   })
 
-  it('falls back to the branding OG image when content has none', async () => {
-    renderApp({
-      entry: '/about',
-      handlers: {
-        '/api/public/branding': {
-          body: { ...brandingFixture, media: { ...brandingFixture.media, og_image: 'm-og' } },
-        },
-      },
-    })
+  it('uses the branded site card as og:image on general pages', async () => {
+    renderApp({ entry: '/about' })
     await screen.findByRole('heading', { level: 1, name: /about thridha labs/i })
     await waitFor(() => {
-      expect(metaContent('meta[property="og:image"]')).toBe('/api/public/media/m-og?variant=md')
+      expect(metaContent('meta[property="og:image"]')).toBe(
+        `${SITE_URL}/share/site/image`,
+      )
     })
   })
 

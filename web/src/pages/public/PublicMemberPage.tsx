@@ -15,7 +15,7 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { NotFoundState } from '../../components/ui/NotFoundState'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { isApiError } from '../../lib/errors/ApiError'
-import { absolutePageUrl, memberShareImagePath, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, memberShareImagePath, shareUrl, usePageMeta } from '../../lib/utils/seo'
 import { useJsonLd } from '../../lib/hooks/useJsonLd'
 
 function formatMonth(value: string | null): string {
@@ -46,6 +46,7 @@ export default function PublicMemberPage() {
   const { data, loading, error, reload } = usePublicMember(memberId)
 
   const canonicalUrl = absolutePageUrl(`/members/${memberId ?? ''}`)
+  const shareHref = shareUrl(`/members/${memberId ?? ''}`)
   const displayName = data?.display_name ?? 'Member'
   const shareImage = memberId ? absolutePageUrl(memberShareImagePath(memberId)) : null
 
@@ -169,9 +170,9 @@ export default function PublicMemberPage() {
             </div>
           ) : null}
 
-          {canonicalUrl ? (
+          {data ? (
             <ShareActions
-              url={canonicalUrl}
+              url={shareHref}
               title={`${displayName} — Thridha Labs`}
               text={data.bio ?? undefined}
             />

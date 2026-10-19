@@ -14,7 +14,7 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { NotFoundState } from '../../components/ui/NotFoundState'
 import { usePublicProject } from '../../features/projects/hooks'
 import { isApiError } from '../../lib/errors/ApiError'
-import { absolutePageUrl, projectShareImagePath, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, projectShareImagePath, shareUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
 import { useJsonLd } from '../../lib/hooks/useJsonLd'
 import { resolveMediaUrl } from '../../lib/utils/mediaUrl'
 
@@ -24,6 +24,7 @@ export default function ProjectDetailPage() {
 
   const brandingOgImage = useBrandingOgImage()
   const canonicalUrl = absolutePageUrl(`/projects/${slug ?? ''}`)
+  const shareHref = shareUrl(`/projects/${slug ?? ''}`)
   const shareImage = slug ? absolutePageUrl(projectShareImagePath(slug)) : null
   const contentImage = data?.thumbnail_media_id
     ? resolveMediaUrl(data.thumbnail_media_id, 'md')
@@ -138,9 +139,9 @@ export default function ProjectDetailPage() {
             )}
           </dl>
 
-          {canonicalUrl ? (
+          {data ? (
             <ShareActions
-              url={canonicalUrl}
+              url={shareHref}
               title={`${data.name} — Thridha Labs`}
               text={data.description || undefined}
             />

@@ -14,7 +14,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { usePublicProjects } from '../../features/projects/hooks'
 import { useFeaturedContributions } from '../../features/works/hooks'
-import { absolutePageUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 import type { ProjectType } from '../../types/content'
 import type { FeaturedContribution } from '../../types/work'
 import type { PublicProject } from '../../types/content'
@@ -47,13 +47,13 @@ export default function ProjectsPage() {
   const { data, loading, error, reload } = usePublicProjects({ sort: 'display_order', order: 'asc' })
   const { data: contributionsData } = useFeaturedContributions()
 
-  const brandingOgImage = useBrandingOgImage()
+  const ogImage = useDefaultOgImage()
   usePageMeta({
     title: 'Projects — Thridha Labs',
     description:
       'Selected work and experiments from Thridha Labs — AI, software and ideas turned into things people can use.',
     canonical: absolutePageUrl('/projects'),
-    ogImage: brandingOgImage,
+    ogImage,
   })
 
   const projects = data?.items ?? []

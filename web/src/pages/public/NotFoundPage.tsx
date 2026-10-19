@@ -6,9 +6,5 @@ import { usePageMeta } from '../../lib/utils/seo'
 export default function NotFoundPage() {
   usePageMeta({ title: 'Page not found — Thridha Labs', robots: 'noindex, nofollow' })
 
-  return (
-    <div>
-      <NotFoundState />
-    </div>
-  )
+  return <NotFoundState />
 }

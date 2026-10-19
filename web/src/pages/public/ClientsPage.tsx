@@ -10,18 +10,18 @@ import { ContentSkeleton } from '../../components/ui/ContentSkeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { usePublicClients } from '../../features/clients/hooks'
-import { absolutePageUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 
 export default function ClientsPage() {
   const { data, loading, error, reload } = usePublicClients({ sort: 'display_order', order: 'asc' })
-  const brandingOgImage = useBrandingOgImage()
+  const ogImage = useDefaultOgImage()
 
   usePageMeta({
     title: 'Clients — Thridha Labs',
     description:
       'The people and teams Thridha Labs builds with — real collaborations, recorded honestly.',
     canonical: absolutePageUrl('/clients'),
-    ogImage: brandingOgImage,
+    ogImage,
   })
 
   const clients = data?.items ?? []

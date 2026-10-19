@@ -25,7 +25,9 @@ from tests._content_helpers import (
     login_admin,
     onboard_member,
     patch_work,
+    png_bytes,
     publish_work,
+    upload_member_media,
 )
 
 _PUBLIC_URL = "https://thridhalabs.example"
@@ -195,3 +197,82 @@ async def test_work_share_404_for_private_member(
     res = await client.get(f"/share/members/{readable}/works/{work['slug']}")
     assert res.status_code == 404
     assert "noindex, nofollow" in res.text
+
+
+# ---------------------------------------------------------------------------
+# Branded site card + image fallbacks
+# ---------------------------------------------------------------------------
+async def test_site_share_document_and_image(client, public_frontend_url):
+    res = await client.get("/share/site")
+    assert res.status_code == 200, res.text
+    assert res.headers["content-type"].startswith("text/html")
+    canonical = f"{_PUBLIC_URL}/"
+    image = f"{_PUBLIC_URL}/share/site/image"
+    _assert_meta(res.text, canonical, image)
+    assert "localhost" not in res.text
+
+    img = await client.get("/share/site/image")
+    assert img.status_code == 200, img.text
+    assert img.headers["content-type"] == "image/jpeg"
+    _assert_jpeg(img.content)
+
+
+async def test_member_share_uses_own_profile_photo(
+    client, make_admin, fetch_csrf, monkeypatch, public_frontend_url
+):
+    member_client, token, readable = await _setup_member(
+        client, make_admin, fetch_csrf, monkeypatch,
+        email="shareselfphoto@example.com", visibility="public",
+    )
+    uploaded = await member_client.post(
+        "/api/member/picture",
+        files={"file": ("me.png", png_bytes(240, 240, "navy"), "image/png")},
+        headers={"X-CSRF-Token": token},
+    )
+    assert uploaded.status_code in (200, 201), uploaded.text
+
+    # The document advertises this member's own image route (never a generic one).
+    res = await client.get(f"/share/members/{readable}")
+    assert res.status_code == 200, res.text
+    assert f"{_PUBLIC_URL}/share/members/{readable}/image" in res.text
+
+    img = await client.get(f"/share/members/{readable}/image")
+    assert img.status_code == 200
+    _assert_jpeg(img.content)
+
+
+async def test_work_share_falls_back_to_content_gallery_image(
+    client, make_admin, fetch_csrf, monkeypatch, public_frontend_url
+):
+    member_client, token, readable = await _setup_member(
+        client, make_admin, fetch_csrf, monkeypatch,
+        email="sharegallery@example.com", visibility="public",
+    )
+    gallery_media = await upload_member_media(member_client, token)
+    # No cover image — only an image inside the content document.
+    work = await create_work(member_client, token, title="Gallery Only")
+    await patch_work(
+        member_client,
+        token,
+        work["id"],
+        content={
+            "version": 1,
+            "blocks": [
+                {
+                    "type": "image_gallery",
+                    "media_ids": [gallery_media["id"]],
+                }
+            ],
+        },
+    )
+    await publish_work(member_client, token, work["id"])
+    await patch_work(member_client, token, work["id"], visibility="public")
+
+    res = await client.get(f"/share/members/{readable}/works/{work['slug']}")
+    assert res.status_code == 200, res.text
+
+    img = await client.get(
+        f"/share/members/{readable}/works/{work['slug']}/image"
+    )
+    assert img.status_code == 200
+    _assert_jpeg(img.content)

@@ -7,6 +7,7 @@ import {
   applyPageMeta,
   getSiteOrigin,
   projectShareImagePath,
+  shareUrl,
 } from '../lib/utils/seo'
 
 function goto(path: string): void {
@@ -35,6 +36,19 @@ describe('canonical origin', () => {
     expect(absolutePageUrl(projectShareImagePath('atlas engine'))).toBe(
       `${SITE_URL}/share/projects/atlas%20engine/image`,
     )
+  })
+})
+
+describe('share url (never null)', () => {
+  it('uses the canonical origin when available', () => {
+    expect(shareUrl('/members/THL-M-1')).toBe(`${SITE_URL}/members/THL-M-1`)
+  })
+
+  it('always returns an absolute url and normalises the path', () => {
+    expect(shareUrl('projects')).toBe(`${SITE_URL}/projects`)
+    // Unlike absolutePageUrl, it is never null — sharing must always work.
+    expect(shareUrl('/x')).not.toBeNull()
+    expect(shareUrl('/x')).toMatch(/^https?:\/\//)
   })
 })
 

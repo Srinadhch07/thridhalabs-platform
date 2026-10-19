@@ -26,7 +26,7 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { usePublicClients } from '../../features/clients/hooks'
 import { usePublicProjects } from '../../features/projects/hooks'
 import { usePublicTestimonials } from '../../features/testimonials/hooks'
-import { usePageMeta, useBrandingOgImage, absolutePageUrl } from '../../lib/utils/seo'
+import { usePageMeta, useBrandingOgImage, absolutePageUrl, siteShareImagePath } from '../../lib/utils/seo'
 import { useJsonLd } from '../../lib/hooks/useJsonLd'
 import type { PublicClient, PublicProject, PublicTestimonial } from '../../types/content'
 
@@ -443,6 +443,7 @@ export default function HomePage() {
   const clients = usePublicClients({ sort: 'display_order', order: 'asc' })
   const testimonials = usePublicTestimonials({ sort: 'display_order', order: 'asc' })
   const brandingOgImage = useBrandingOgImage()
+  const siteOgImage = absolutePageUrl(siteShareImagePath())
 
   usePageMeta({
     title: `${siteName} — ${tagline}`,
@@ -450,7 +451,8 @@ export default function HomePage() {
     canonical: absolutePageUrl('/'),
     ogTitle: settings?.seo?.seo_title || `${siteName} — ${tagline}`,
     ogDescription: settings?.seo?.seo_description || description,
-    ogImage: brandingOgImage,
+    ogImage: siteOgImage ?? brandingOgImage,
+    ogImageAlt: `${siteName} — ${tagline}`,
   })
   useJsonLd([
     {

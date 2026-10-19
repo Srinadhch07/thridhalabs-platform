@@ -14,19 +14,19 @@ import { ContentSkeleton } from '../../components/ui/ContentSkeleton'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { usePublicOpportunities } from '../../features/careers/hooks'
-import { absolutePageUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 import NotFoundPage from './NotFoundPage'
 
 export default function CareersPage() {
   const careers = useCareers()
-  const brandingOgImage = useBrandingOgImage()
+  const ogImage = useDefaultOgImage()
   const enabled = careers.enabled
 
   usePageMeta({
     title: 'Careers — Thridha Labs',
     description: 'Open roles and ways to work with Thridha Labs.',
     canonical: absolutePageUrl('/careers'),
-    ogImage: brandingOgImage,
+    ogImage,
   })
 
   const { data, loading, error, reload } = usePublicOpportunities(

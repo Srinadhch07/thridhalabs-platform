@@ -2132,6 +2132,40 @@ img.client-tile__monogram {
   background: var(--surface);
   border-color: var(--border-strong);
 }
+/* ---------- standalone state page (404 / maintenance) ----------
+   The 404 route renders outside the public shell, so it owns its full-page
+   layout: centered, viewport-aware, with safe gutters at every width. */
+.state-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: clamp(24px, 6vw, 64px) clamp(16px, 5vw, 48px);
+  background: var(--bg);
+}
+.state-page__inner {
+  width: 100%;
+  max-width: 560px;
+}
+.state-page .state-card {
+  max-width: none;
+  margin: 0;
+  text-align: center;
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+.state-page .state-card .btn {
+  margin-top: var(--space-4);
+}
+@media (max-width: 480px) {
+  .state-page {
+    min-height: 100svh;
+    padding: clamp(20px, 7vw, 32px) clamp(16px, 5vw, 24px);
+  }
+  .state-page .state-card {
+    padding: var(--space-5);
+  }
+}
 /* ---------- responsive ---------- */
 @media (max-width: 1080px) {
   .project-grid,  .client-grid,  .quote-grid {

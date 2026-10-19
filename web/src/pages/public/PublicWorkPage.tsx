@@ -14,7 +14,7 @@ import { ContentSkeleton } from '../../components/ui/ContentSkeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { NotFoundState } from '../../components/ui/NotFoundState'
 import { isApiError } from '../../lib/errors/ApiError'
-import { absolutePageUrl, usePageMeta, workShareImagePath } from '../../lib/utils/seo'
+import { absolutePageUrl, shareUrl, usePageMeta, workShareImagePath } from '../../lib/utils/seo'
 import { useJsonLd } from '../../lib/hooks/useJsonLd'
 
 function formatDate(value: string): string {
@@ -28,6 +28,7 @@ export default function PublicWorkPage() {
   const { data, loading, error, reload } = usePublicWork(memberId, slug)
 
   const canonicalUrl = absolutePageUrl(`/members/${memberId ?? ''}/works/${slug ?? ''}`)
+  const shareHref = shareUrl(`/members/${memberId ?? ''}/works/${slug ?? ''}`)
   const shareImage =
     memberId && slug ? absolutePageUrl(workShareImagePath(memberId, slug)) : null
 
@@ -94,9 +95,9 @@ export default function PublicWorkPage() {
 
           {data.tags.length > 0 ? <TechChips items={data.tags} /> : null}
 
-          {canonicalUrl ? (
+          {data ? (
             <ShareActions
-              url={canonicalUrl}
+              url={shareHref}
               title={`${data.title} — Thridha Labs`}
               text={data.summary}
             />

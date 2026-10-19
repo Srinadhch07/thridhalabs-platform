@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Iterable
 
 from fastapi import Request
 
@@ -34,7 +35,10 @@ _WHITESPACE = re.compile(r"\s+")
 @dataclass(frozen=True)
 class SharePayload:
     card: ShareCard
-    background: bytes | None
+    background: bytes | None = None
+    # A media id used only when `background` is None (branding OG image for the
+    # site card). Never an alternate entity's asset.
+    branded_media_id: str | None = None
 
 
 def _public_base(request: Request) -> str:
@@ -73,8 +77,8 @@ async def _accent() -> str:
     return _DEFAULT_ACCENT
 
 
-async def _background(media_id: str | None) -> bytes | None:
-    """Read a usable image for the card background, or None for the fallback."""
+async def _background_from_id(media_id: str | None) -> bytes | None:
+    """Read a usable image for one media id, or None."""
     if not media_id:
         return None
     for variant in ("lg", "md", "original"):
@@ -87,6 +91,37 @@ async def _background(media_id: str | None) -> bytes | None:
             log.warning("Background media read failed (variant=%s)", variant)
             break
     return None
+
+
+async def _background(media_ids: Iterable[str | None]) -> bytes | None:
+    """First usable image across an ordered candidate list, or None.
+
+    Candidates are tried in order (explicit cover first, then content/gallery
+    fallbacks) so a card always prefers the entity's own intended image and
+    never borrows another entity's asset.
+    """
+    for media_id in media_ids:
+        data = await _background_from_id(media_id)
+        if data is not None:
+            return data
+    return None
+
+
+def _work_image_candidates(work: object) -> list[str | None]:
+    """Work cover first, then the first public image from its content blocks."""
+    candidates: list[str | None] = [getattr(work, "cover_media_id", None)]
+    content = getattr(work, "content", None)
+    if content is not None:
+        candidates.extend(content.media_ids())
+    return candidates
+
+
+def _project_image_candidates(project: object) -> list[str | None]:
+    """Project cover (thumbnail) first, then the first gallery image."""
+    candidates: list[str | None] = [getattr(project, "thumbnail_media_id", None)]
+    gallery = getattr(project, "gallery_media_ids", None) or []
+    candidates.extend(gallery)
+    return candidates
 
 
 async def member_payload(request: Request, member_id: str) -> SharePayload:
@@ -108,7 +143,8 @@ async def member_payload(request: Request, member_id: str) -> SharePayload:
         subtitle=_short(member.profile.bio, 110),
         footer=_footer(base),
     )
-    return SharePayload(card=card, background=await _background(member.profile.picture_media_id))
+    background = await _background([member.profile.picture_media_id])
+    return SharePayload(card=card, background=background)
 
 
 async def project_payload(request: Request, slug: str) -> SharePayload:
@@ -129,7 +165,8 @@ async def project_payload(request: Request, slug: str) -> SharePayload:
         subtitle=_short(project.description, 110),
         footer=_footer(base),
     )
-    return SharePayload(card=card, background=await _background(project.thumbnail_media_id))
+    background = await _background(_project_image_candidates(project))
+    return SharePayload(card=card, background=background)
 
 
 async def work_payload(request: Request, member_id: str, slug: str) -> SharePayload:
@@ -152,17 +189,56 @@ async def work_payload(request: Request, member_id: str, slug: str) -> SharePayl
         subtitle=_short(work.summary, 110),
         footer=_footer(base),
     )
-    return SharePayload(card=card, background=await _background(work.cover_media_id))
+    background = await _background(_work_image_candidates(work))
+    return SharePayload(card=card, background=background)
+
+
+async def _branding_media_id() -> str | None:
+    try:
+        branding = await branding_service.get_branding()
+        return branding.media.og_image
+    except Exception:  # branding is best-effort presentation data
+        log.warning("Branding OG image unavailable for the site card")
+        return None
+
+
+async def site_payload(request: Request) -> SharePayload:
+    """The branded general-purpose card for the homepage and non-entity pages.
+
+    Hero image: the admin-configured branding OG image when present, otherwise
+    the generated branded canvas — so an always-large, always-branded default
+    preview exists for every general Thridha Labs URL.
+    """
+    base = _public_base(request)
+    card = ShareCard(
+        kind="site",
+        title=clean_title("Thridha Labs — AI & software experimentation lab"),
+        description=(
+            "Thridha Labs is a technology and AI experimentation lab. AI, "
+            "software and ideas turned into things people can actually use."
+        ),
+        canonical_url=f"{base}/",
+        image_url=f"{base}/share/site/image",
+        image_alt="Thridha Labs — AI and software experimentation lab",
+        og_type="website",
+        kicker="Thridha Labs",
+        subtitle=None,
+        footer=_footer(base),
+    )
+    return SharePayload(card=card, branded_media_id=await _branding_media_id())
 
 
 async def render(payload: SharePayload) -> bytes:
     """Render the 1200x630 JPEG for a resolved payload."""
     accent = await _accent()
+    background = payload.background
+    if background is None and payload.branded_media_id:
+        background = await _background_from_id(payload.branded_media_id)
     return render_preview_image(
         title=clean_title(payload.card.title).replace(" — Thridha Labs", ""),
         kicker=payload.card.kicker,
         subtitle=payload.card.subtitle,
         footer=payload.card.footer,
-        background=payload.background,
+        background=background,
         accent=accent,
     )

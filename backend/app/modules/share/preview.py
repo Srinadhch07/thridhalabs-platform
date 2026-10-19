@@ -1,10 +1,11 @@
 """Pillow composition for 1200x630 social preview images.
 
-Design intent (matches the approved concept): a large image fills the card,
-with a legible dark scrim and only minimal provenance text — a small kicker,
-the title, an optional one-line subtitle and a branded footer. When the entity
-has no usable image a branded fallback canvas is generated instead, so an
-`og:image` is always available.
+Design intent: the entity's **actual image is the hero** — it fills the card
+undistorted and undimmed across the top/middle, with a legible scrim only where
+text sits (bottom band). Minimal provenance text: a small kicker, the title, an
+optional one-line subtitle and a branded footer. When the entity has no usable
+image, a dedicated branded canvas is generated instead, so an `og:image` is
+always available and always large.
 
 No font files are bundled or loaded from disk: Pillow's built-in scalable
 default font is used, which keeps the output identical on every platform
@@ -141,12 +142,20 @@ def render_preview_image(
     background: bytes | None = None,
     accent: str | None = None,
 ) -> bytes:
-    """Render a 1200x630 JPEG preview. Always returns decodable JPEG bytes."""
+    """Render a 1200x630 JPEG preview. Always returns decodable JPEG bytes.
+
+    With a usable `background` the image is the hero: it fills the frame with a
+    light overall scrim plus a stronger bottom band so bottom-anchored text
+    stays legible without hiding the actual photo/cover. Without one, a branded
+    canvas is generated instead.
+    """
     accent_rgb = _hex_to_rgb(accent, _DEFAULT_ACCENT)
 
     decoded = _decode_cover(background) if background else None
     if decoded is not None:
-        canvas = _scrim(decoded, top_alpha=40, bottom_alpha=232)
+        # Keep the actual image visible: a faint full-frame wash only takes the
+        # edge off, and a bottom-only gradient carries the text band.
+        canvas = _scrim(decoded, top_alpha=24, bottom_alpha=210)
     else:
         canvas = _fallback_canvas(accent_rgb)
 

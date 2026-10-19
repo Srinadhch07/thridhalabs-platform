@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../app/providers/SiteSettingsProvider'
 import { PageHeader } from '../../components/public/PageHeader'
 import { Reveal } from '../../components/public/Reveal'
-import { absolutePageUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 
 function principle(step: string, title: string, body: string) {
   return (
@@ -27,7 +27,7 @@ export default function AboutPage() {
   const description =
     settings?.general.description || 'AI, software and ideas turned into things people can actually use.'
 
-  const brandingOgImage = useBrandingOgImage()
+  const brandingOgImage = useDefaultOgImage()
   usePageMeta({
     title: 'About — Thridha Labs',
     description,

@@ -29,6 +29,7 @@ to them.
 | Lab Member profile      | `/members/{member_id}`                       | `GET /share/members/{member_id}` |
 | Official project page   | `/projects/{slug}`                           | `GET /share/projects/{slug}` |
 | Work Showcase detail    | `/members/{member_id}/works/{slug}`          | `GET /share/members/{member_id}/works/{slug}` |
+| Homepage & general pages| `/`, `/about`, `/projects`, `/clients`, `/testimonials`, `/contact`, `/activities`, `/careers` | `GET /share/site` |
 
 Each document pairs with a generated preview image:
 
@@ -37,6 +38,7 @@ Each document pairs with a generated preview image:
 | `GET /share/members/{member_id}/image` |
 | `GET /share/projects/{slug}/image` |
 | `GET /share/members/{member_id}/works/{slug}/image` |
+| `GET /share/site/image` |
 
 ---
 
@@ -60,10 +62,20 @@ production** so all advertised URLs are absolute and HTTPS.
 ### Preview image
 
 - Size `1200x630`, `image/jpeg`.
-- Uses the entity's real cover/profile image when available (member profile
-  photo, project thumbnail, work cover), cover-cropped with a dark scrim.
-- Falls back to a branded canvas when the entity has no image, or when the
-  source image cannot be decoded.
+- **Image-forward**: the entity's real image is the hero (member profile photo,
+  project cover/thumbnail, work cover, or the first public content/gallery
+  image), cover-cropped so it is never stretched or distorted, with a light
+  overall wash and a stronger bottom-only band for legible text.
+- **Selection order**:
+  - Member → profile picture (`picture_media_id`), else branded canvas.
+  - Project → thumbnail/cover, else the first `gallery_media_ids` entry, else
+    branded canvas.
+  - Work → cover (`cover_media_id`), else the first image in its content
+    document (image block or gallery block), else branded canvas.
+  - Site/general → the configured branding OG image, else the branded canvas.
+- Falls back to the branded canvas when the entity has no image, or when the
+  source image cannot be decoded. An `og:image` (1200x630) is **always**
+  available.
 - Text is drawn with Pillow's bundled default font
   (`ImageFont.load_default(size=...)`) — **no font file is shipped or loaded from
   disk**, so rendering is identical across platforms.
@@ -148,6 +160,17 @@ server {
         proxy_set_header   Host              $host;
         proxy_set_header   X-Forwarded-Proto $scheme;
         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+    }
+
+    # 5b. Homepage and general pages → the branded site card.
+    #     (Crawlers only; browsers keep the SPA via the fallback below.)
+    location = / {
+        if ($social_bot) { rewrite ^ /share/site last; }
+        try_files $uri /index.html;
+    }
+    location ~ ^/(about|projects|clients|testimonials|contact|activities|careers)/?$ {
+        if ($social_bot) { rewrite ^ /share/site last; }
+        try_files $uri /index.html;
     }
 
     # Existing backend mounts.

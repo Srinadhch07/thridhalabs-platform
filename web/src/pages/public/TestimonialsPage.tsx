@@ -15,7 +15,7 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { usePublicTestimonials } from '../../features/testimonials/hooks'
 import { submitTestimonial } from '../../features/testimonials/api'
 import { getErrorMessage, isApiError } from '../../lib/errors/ApiError'
-import { absolutePageUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 
 function SubmissionForm() {
   const [personName, setPersonName] = useState('')
@@ -136,13 +136,13 @@ function SubmissionForm() {
 
 export default function TestimonialsPage() {
   const { data, loading, error, reload } = usePublicTestimonials({ sort: 'display_order', order: 'asc' })
-  const brandingOgImage = useBrandingOgImage()
+  const ogImage = useDefaultOgImage()
 
   usePageMeta({
     title: 'Testimonials — Thridha Labs',
     description: 'What people say about working with Thridha Labs.',
     canonical: absolutePageUrl('/testimonials'),
-    ogImage: brandingOgImage,
+    ogImage,
   })
 
   const items = data?.items ?? []

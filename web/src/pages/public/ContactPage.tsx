@@ -11,7 +11,7 @@
 import { useSiteSettings } from '../../app/providers/SiteSettingsProvider'
 import { CosmicField } from '../../components/ui/cosmic-field'
 import { Reveal } from '../../components/public/Reveal'
-import { absolutePageUrl, useBrandingOgImage, usePageMeta } from '../../lib/utils/seo'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 
 /** Rebuild a WhatsApp conversation link from a configured value when possible. */
 function whatsappHref(value: string): string | null {
@@ -116,14 +116,14 @@ export default function ContactPage() {
   const { data: settings } = useSiteSettings()
   const contact = settings?.contact
   const socials = settings?.social?.urls ?? {}
-  const brandingOgImage = useBrandingOgImage()
+  const ogImage = useDefaultOgImage()
 
   usePageMeta({
     title: 'Contact — Thridha Labs',
     description:
       "From a new digital idea to a business that needs a better online presence, let's explore what we can create together.",
     canonical: absolutePageUrl('/contact'),
-    ogImage: brandingOgImage,
+    ogImage,
   })
 
   const hasContact = Boolean(
