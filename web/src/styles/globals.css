@@ -25,6 +25,15 @@ body {
   font-synthesis-weight: none;
 }
 
+/* Form controls default to the browser UI font unless told otherwise;
+   inherit so buttons, inputs, selects and textareas always use Arial. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 ::selection {
   /* Theme-aware text selection: a restrained tint of the active text color
      (light gray on dark presets, light gray on light presets) rather than a
@@ -41,7 +50,11 @@ body {
 
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
   line-height: var(--lh-tight);
   letter-spacing: -0.01em;
   margin: 0 0 var(--space-4);

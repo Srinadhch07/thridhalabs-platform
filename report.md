@@ -1295,4 +1295,216 @@ origin) was conflated with the visible Share control (which must always work).
 - No `.env` changes; no staging/commit/deploy.
 
 
+## Typography update (Times New Roman + Arial)
+
+**Goal**: serif editorial headings (`Times New Roman`) and a neutral sans
+(`Arial`) for every functional element, applied consistently across the public
+site, Admin Panel and Member Portal — without touching sizes, colors, spacing or
+layout.
+
+**Audit findings**
+
+- All typography already funnelled through two tokens in
+  `web/src/styles/tokens.css`: `--sans` (Inter) and `--mono` (system monospace).
+  `body` uses `var(--sans)`; eyebrows, tags, buttons, labels, metadata and HUD
+  text use `var(--mono)` across `globals.css`, `public.css`, `admin.css`,
+  `member.css`, `works.css`, `activities.css`, `reports.css`.
+- Headings (`h1`–`h3`) set only line-height/letter-spacing and **inherited**
+  `--sans` — there was no dedicated heading font.
+- **No `Bodoni Moda` and no web-font imports / `@font-face` / Google Fonts
+  links exist anywhere in the app** (checked `.css`, `.tsx`, `index.html`), so
+  there was nothing to remove. The previous stack was a system sans; the only
+  change needed is repointing the font tokens.
+- Form controls (`button`, `input`, `select`, `textarea`) had no explicit
+  font-family, so they fell back to the browser UI font.
+
+**Changes**
+
+- `web/src/styles/tokens.css`: added `--font-heading: "Times New Roman", Times,
+  serif;` and `--font-body: Arial, Helvetica, sans-serif;`; repointed
+  `--sans: var(--font-body)` and `--mono: var(--font-body)` so every existing
+  `var(--sans)`/`var(--mono)` usage — body, nav, buttons, forms, labels,
+  eyebrows, captions, metadata, code/HUD — now resolves to Arial automatically.
+- `web/src/styles/globals.css`:
+  - extended the heading rule to `h1,h2,h3,h4,h5,h6 { font-family:
+    var(--font-heading); … }` so every heading element uses Times New Roman.
+  - added `button, input, select, textarea { font-family: inherit; }` so
+    controls use Arial rather than the browser default.
+- No size, color, spacing, radius, layout or responsive rules were changed; no
+  components were edited.
+
+**Verification**
+
+- `npm run typecheck` — clean. `npm run build` — succeeds (pre-existing
+  chunk-size advisory only).
+- `npx vitest run src/test/theme-tokens.test.ts` — **8 passed** (the token-mapping
+  guard still holds; public.css still has zero literal hex colors).
+- Confirmed in the production CSS bundle: `--font-heading: "Times New Roman"`,
+  `--font-body: Arial, Helvetica, sans-serif`, `--sans: var(--font-body)`, and
+  the `h1,h2,h3,h4,h5,h6{font-family:var(--font-heading)}` rule.
+
+**Needs visual confirmation (browser, not run here)**
+
+- Spot-check public pages, Admin Panel and Member Portal at desktop + mobile
+  widths for consistent heading/body typography and no layout shift.
+
+
+## Decorative-visual refinement (calmer, editorial)
+
+**Goal**: remove the "generic AI landing page" tells — glowing/pulsing dots,
+perpetual motion, grids and glow layers — so the public site reads as mature,
+calm and editorial, without changing content, typography, branding, colors or
+layout.
+
+**Audit findings (shared, centralised)**
+
+- All public decoration funnelled through `web/src/styles/public.css` and the
+  shared `CosmicField` canvas, so most changes are centralised:
+  - `.hud-dot` — the glowing teal dot next to `PROJECTS / INDEX` (used by
+    `PageHeader`/`SectionHeader` on every inner page, the hero and contact
+    eyebrow): `led-breathe` animation + `box-shadow` glow.
+  - `.public-brand__dot` (header wordmark) — same `led-breathe` + glow.
+  - `.rec-dot` — blinking red LED.
+  - Grid overlays (`background-size: 64px/48px` gridlines) on `.page-hero`,
+    `.hero`, `.cta-band`, plus radial-gradient glow pseudo-layers
+    (`.page-hero::after`, `.hero::before`, `.cta-band::before`) and multi-stop
+    radial "nebula" backgrounds on `.hero--editorial` and `.contact-hero`.
+  - `.media-tile__sigil::before` — pulsing, glowing placeholder dot.
+  - `CosmicField` (`web/src/components/ui/cosmic-field.tsx`) — a full
+    `requestAnimationFrame` scene: 2 drifting nebula washes, 3 twinkling star
+    layers, drifting bright dust motes, 3 orbital arcs + a travelling glowing
+    node, and a pulsing focal core.
+  - Dead legacy hero CSS (not rendered anywhere): `.hero-orbit`/`.orbit-*`
+    spinning rings, `.hero-legend*`, `.hero-scroll-hint::before` drop-line,
+    `.wordmark__line` rise / `.wordmark__rule` rule-in, `.caret` blink.
+- Two animations are **functional** and were kept: `.spinner`
+  (`spinner-rotate`, loading buttons) and `.skeleton-shimmer` (content
+  loading) in `globals.css`.
+
+**Changes**
+
+- `web/src/styles/public.css`:
+  - `.hud-dot`, `.public-brand__dot`, `.rec-dot` → static markers: removed
+    `animation` and glow `box-shadow`, slightly reduced size.
+  - Removed the grid `background-image`/`background-size` from `.page-hero`,
+    `.hero`, `.cta-band` and the radial-gradient pseudo-layers
+    (`.page-hero::after`, `.hero::before`, `.cta-band::before`).
+  - `.hero--editorial` / `.contact-hero` → plain themed background
+    (`background-color: var(--color-background)`); kept the hero's static
+    legibility vignette.
+  - `.media-tile__sigil::before` → static (no pulse/glow).
+  - Removed the dead legacy hero decorative blocks and the now-unused
+    `@keyframes` (`rise`, `rule-in`, `caret-blink`, `led-blink`, `led-breathe`,
+    `blink-soft`, `spin`, `spin-rev`, `drop-line`); pruned dead selectors from
+    the `prefers-reduced-motion` block (kept the functional `.reveal` /
+    mobile-menu rules). Updated the file header comment.
+- `web/src/components/ui/cosmic-field.tsx`: reduced to a **single still frame**
+  — no RAF loop, no dust drift, no travelling node, no pulsing core, no
+  twinkle. It now paints one soft primary nebula wash, one secondary tint and a
+  sparse static star field, re-rendered only on mount, resize, or a branding
+  variable change. Removed the `Dust` type / dust scene and the twinkle fields;
+  updated the doc comment.
+
+**Retained (intentional)**
+
+- Dark background, brand palette, type hierarchy, spacing, borders.
+- Hover/transition feedback on buttons, nav underline, cards
+  (`--accent-glow` used as a static hover *border color*, not an animation).
+- The static `ContactDiagram` SVG (a deliberate editorial illustration, no
+  animation) and the static hero legibility vignette.
+- Functional loaders (`spinner`, `skeleton-shimmer`) and `prefers-reduced-motion`
+  guards.
+
+**Verification**
+
+- `npm run typecheck` — clean. `npm run build` — succeeds (pre-existing
+  chunk-size advisory only).
+- `npx vitest run homepage background-paths theme-tokens public-chrome` — **24
+  passed**; `homepage public-pages public-media-seo` — **30 passed** (the
+  `.cosmic-field` decorative layer assertion still holds; `theme-tokens` still
+  passes — `public.css` still has zero literal hex).
+- Built CSS confirmed free of `led-breathe`, `led-blink`, `blink-soft`,
+  `caret-blink`, `orbit-ring`, `hero-legend`, `drop-line`, `rise`, `spin`
+  (only the functional `spinner-rotate` remains).
+
+**Needs visual confirmation (browser, not run here)**
+
+- Review the Projects page (the `PROJECTS / INDEX` eyebrow dot is now a plain
+  marker) plus Home and Contact for calm, consistent presentation.
+
+## Visual weight & page authority (grounded, substantial)
+
+**Goal**: stop pages reading as thin, floating layers over the dark background.
+Strengthen composition, typographic authority, surface contrast and section
+rhythm so the site feels grounded and credible — without changing branding,
+palette, font families (Times New Roman headings / Arial body), content or
+layout structure.
+
+**Audit findings**
+
+- Surfaces and hairlines were extremely faint: `--panel` = 5% text, `--panel-2`
+  = 9%, `--frame-soft` = 8% and `--frame` = 15%. Cards read as glass panes and
+  borders nearly disappeared, so page blocks felt like loose fragments.
+- Type was undersized for the new serif identity: body 15px, `--fs-lg` 26px,
+  section titles capped at 44px; the 11px metadata labels carried very wide
+  tracking (0.16–0.22em), which reads as thin and fussy rather than confident.
+- Header/footer and page-hero separators used the faintest frame; inner-page
+  heroes had no surface of their own, so the page never "started" with mass.
+- Cards lifted 2px on hover (floating feel) and decorative gridline backgrounds
+  survived inside `.media-tile` placeholders.
+
+**Changes**
+
+- `web/src/styles/tokens.css` (central lever):
+  - Strengthened derived surfaces/borders: `--bg-2` 4→5%, `--bg-3` 8→9%,
+    `--panel` 5→7%, `--panel-2` 9→12%, `--frame-soft` 8→11%, `--frame` 15→18%,
+    `--text-faint` 40→52% (metadata legibility).
+  - Raised the type scale: `--fs-xs` 11→12, `--fs-sm` 13→14, `--fs-base` 15→16,
+    `--fs-md` 18→19, `--fs-lg` 26→30; display scale `--fs-title` max 44→50,
+    `--fs-display-sm` 30/64→32/68, `--fs-display` max 116→120.
+  - Calmed label tracking: `--track-caps` 0.22em→0.12em.
+- `web/src/styles/public.css`:
+  - `.page-hero`, `.detail-hero`, `.closing` now sit on `var(--bg-2)` with
+    `var(--frame)` bottom/top rules and larger vertical padding — page headers
+    and the closing band read as grounded planes.
+  - Header/footer separators use `var(--frame)`; `.page-hero__rule` simplified
+    from a gradient to a solid 88×2px accent bar.
+  - Project/client/quote/activity/contact cards use `--border-strong` and a
+    denser body (`space-6`); removed the 2px hover lift on every card so
+    surfaces stay planted (hover keeps border + surface feedback).
+  - Featured project card uses a solid `--surface-raised` frame (removed the
+    gradient wash). Metadata tracking cut to 0.08em across nav, meta labels,
+    flags, pills, back-links and card actions.
+  - Removed the remaining decorative gridline background from `.media-tile`
+    (now solid `--bg-3`) and the placeholder radial wash.
+- `web/src/styles/activities.css`: activity cards aligned to the same
+  border/body/hover treatment and tracking.
+
+**Retained (intentional)**
+
+- Branding palette, Times New Roman / Arial pairing, layout and content.
+- Static cosmic hero backdrop, accent hover borders, functional loaders.
+- Theme derivation: all values still resolve from the five brandable tokens;
+  `public.css` still contains zero literal hex colors.
+
+**Verification**
+
+- `npm run typecheck` — clean.
+- `npm run build` — succeeds (pre-existing chunk-size advisory only).
+- `npx vitest run theme-tokens public-pages homepage --no-file-parallelism` —
+  theme-tokens + public-pages pass; homepage passes in isolation (one initial
+  5s timeout under parallel load, re-run with `--testTimeout=20000` = 6/6).
+- Built CSS confirmed: `--fs-base:16px`, `--fs-title:clamp(30px,3.8vw,50px)`,
+  `--track-caps:.12em`, `.media-tile` background is `var(--bg-3)`, and the
+  removed keyframes (`led-breathe`, `led-blink`, `blink-soft`, `caret-blink`,
+  `rise`, `spin`, `drop-line`) are absent (only member-portal `member-rise`
+  remains).
+
+**Needs visual confirmation (browser, not run here)**
+
+- Desktop + mobile pass over Home, Projects, a project detail, Activities,
+  About, Contact and a public member/work page; check card density at 3-column
+  widths and the Times New Roman headings at the new display sizes.
+
+
 

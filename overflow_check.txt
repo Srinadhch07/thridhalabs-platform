@@ -1,0 +1,40 @@
+﻿  overflow: hidden;
+  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+    overflow-x: auto;
+  overflow-y: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  overflow: clip;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
+  overflow: hidden;
+   CTAs perfectly legible. `overflow: clip` + inset:0 keep the paths inside
+   the hero and prevent any horizontal overflow or stray scrollbars. */
+  overflow: clip;
+   never create overflow or capture input. */
+  overflow: clip;
+  overflow: clip;
+  overflow: hidden;
+  overflow: hidden;
+  overflow: hidden;

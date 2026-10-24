@@ -38,7 +38,6 @@ export function Footer() {
       <div className="shell public-footer__grid">
         <div className="public-footer__brand">
           <Link to="/" className="public-brand" aria-label="Thridha Labs">
-            <span className="public-brand__dot" aria-hidden="true" />
             Thridha&nbsp;<span className="public-brand__ghost">Labs</span>
           </Link>
           <p className="public-footer__tagline">{tagline}</p>
@@ -81,7 +80,6 @@ export function Footer() {
 
       <div className="shell public-footer__bar">
         <span>{copyright}</span>
-        <span>Built in-house — HTML, CSS &amp; React</span>
         <span>Websites · Applications · Experiments</span>
       </div>
     </footer>
