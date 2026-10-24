@@ -57,7 +57,7 @@
   gap: 7px;
   min-width: 0;
   font-family: var(--font-heading);
-  font-size: clamp(16px, 1.8vw, 24px);
+  font-size: clamp(18px, 2vw, 26px);
   font-weight: 800;
   letter-spacing: -0.01em;
   text-transform: none;
@@ -69,9 +69,9 @@
 }
 .public-brand__logo {
   align-self: center;
-  height: 26px;
+  height: 28px;
   width: auto;
-  max-width: 140px;
+  max-width: 150px;
   object-fit: contain;
   display: block;
 }
@@ -153,9 +153,9 @@
 @media (max-width: 899px) {
   /* Switch to mobile/tablet menu earlier to prevent header overlap. */
   .public-header__inner {
-    padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
-      max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
-    gap: clamp(12px, 3vw, 18px);
+    padding: max(14px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+    gap: clamp(10px, 3vw, 16px);
     grid-template-columns: auto minmax(0, 1fr) auto;
     justify-content: space-between;
   }
@@ -166,9 +166,15 @@
   }
   .public-brand {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: clamp(140px, 38vw, 220px);
+    overflow: visible;
+    text-overflow: clip;
+    max-width: none;
+    font-size: clamp(24px, 6.8vw, 32px);
+    gap: 8px;
+  }
+  .public-brand__logo {
+    height: 38px;
+    max-width: 210px;
   }
   /* Hide desktop actions on mobile; they appear in the panel */
   .header-cta {
@@ -459,12 +465,12 @@
     --header-height: 84px;
   }
   .public-brand {
-    font-size: 0;
-    gap: 0;
+    font-size: clamp(22px, 6vw, 28px);
+    gap: 7px;
   }
   .public-brand__logo {
-    height: 42px;
-    max-width: 220px;
+    height: 36px;
+    max-width: 200px;
     display: block;
   }
   .public-header__inner {
@@ -844,11 +850,10 @@
     padding-block: clamp(80px, 18vh, 150px) clamp(48px, 10vh, 84px);
   }
   .hero-editorial--refined-a {
-    gap: clamp(22px, 6vh, 40px);
+    gap: clamp(16px, 4vh, 32px);
   }
   .hero-editorial__eyebrow--refined {
-    letter-spacing: 0.14em;
-    font-size: 11px;
+    display: none !important;
   }
   .hero-editorial__title--refined-a {
     max-width: 16ch;
