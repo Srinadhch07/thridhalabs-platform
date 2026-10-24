@@ -14,7 +14,10 @@
     "framer-motion": "^11.18.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.4"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.9.4",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",

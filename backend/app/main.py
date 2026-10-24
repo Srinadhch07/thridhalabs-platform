@@ -59,6 +59,8 @@ from app.modules.works.admin_router import router as works_admin_router
 from app.modules.works.public import contributions_router as works_contributions_router
 from app.modules.works.public import router as works_public_router
 from app.modules.works.router import router as works_router
+from app.modules.legal.public import router as legal_public_router
+from app.modules.legal.router import router as legal_router
 from app.storage import get_storage_provider
 
 
@@ -175,6 +177,8 @@ def create_app() -> FastAPI:
     app.include_router(certificates_public_router, prefix=settings.API_PREFIX)
     app.include_router(activity_certificates_public_router, prefix=settings.API_PREFIX)
     app.include_router(activities_public_router, prefix=settings.API_PREFIX)
+    app.include_router(legal_public_router, prefix=settings.API_PREFIX)
+    app.include_router(legal_router, prefix=settings.API_PREFIX)
 
     # Top-level SEO documents (no /api prefix).
     app.include_router(seo_router)

@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { to: '/admin/media', label: 'Media', end: false },
   { to: '/admin/settings', label: 'Settings', end: false },
   { to: '/admin/branding', label: 'Branding', end: false },
+  { to: '/admin/legal', label: 'Legal Pages', end: false },
   { to: '/admin/ai/settings', label: 'AI Settings', end: false },
   { to: '/admin/ai/summaries', label: 'AI Summaries', end: false },
   { to: '/admin/account', label: 'Account', end: false },

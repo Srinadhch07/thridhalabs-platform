@@ -619,6 +619,7 @@
 }
 /* ---------- footer ---------- */
 .public-footer {
+  position: relative;
   border-top: 1px solid var(--frame);
   padding: 0;
   text-transform: none;
@@ -627,6 +628,181 @@
   font-family: var(--sans);
   font-size: var(--fs-sm);
   text-align: left;
+  overflow: clip;
+}
+
+/* ---------- shared page hero (inner pages) ---------- */
+.page-hero {
+  position: relative;
+  border-bottom: 1px solid var(--frame);
+  background: var(--bg-2);
+  padding-block: clamp(64px, 10vw, 112px);
+  overflow: hidden;
+}
+.page-hero__inner {
+  position: relative;
+  z-index: 1;
+}
+.page-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-faint);
+  margin-bottom: var(--space-4);
+  font-weight: 500;
+}
+.page-hero__title {
+  font-size: var(--fs-display-sm);
+  max-width: 26ch;
+  margin-bottom: var(--space-5);
+}
+.page-hero__lede {
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+  max-width: 58ch;
+  line-height: 1.65;
+  margin-bottom: var(--space-6);
+}
+.page-hero__rule {
+  width: 88px;
+  height: 2px;
+  background: var(--color-primary);
+}
+/* ---------- animated background paths (hero backdrop) ----------
+   Purely decorative layer behind the hero content. Colors are blended from
+   the active branding tokens so the strokes follow the owner theme in both
+   light and dark palettes; opacity stays low enough to keep the headline and
+   CTAs perfectly legible. `overflow: clip` + inset:0 keep the paths inside
+   the hero and prevent any horizontal overflow or stray scrollbars. */
+.background-paths {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.background-paths__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.background-paths__stroke {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 38%, transparent);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.background-paths__stroke.is-soft {
+  stroke: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+}
+/* ---------- cosmic field (hero backdrop) ----------
+   Canvas-rendered cinematic deep-space scene behind the hero. The canvas colors
+   are blended from the active branding tokens at runtime (see CosmicField), so
+   the scene follows light/dark palettes and custom admin colors. The wrapper is
+   purely decorative: inert, non-selectable, and clipped to the hero so it can
+   never create overflow or capture input. */
+.cosmic-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.cosmic-field__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- signal convergence (footer motion) ----------
+   Distinct from hero: slow structured bands converging along axis. */
+.footer-signal-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.footer-signal-field__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.footer-signal-field__band {
+  fill: none;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.24;
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: footer-signal-flow 36s linear infinite;
+}
+.footer-signal-field__band--one {
+  stroke: color-mix(in srgb, var(--color-primary) 32%, transparent);
+}
+.footer-signal-field__band--two {
+  stroke: color-mix(in srgb, var(--color-secondary) 26%, transparent);
+  animation-duration: 42s;
+  animation-delay: -12s;
+}
+.footer-signal-field__band--three {
+  stroke: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  animation-duration: 48s;
+  animation-delay: -18s;
+}
+.footer-signal-field__node {
+  fill: color-mix(in srgb, var(--color-primary) 36%, transparent);
+  opacity: 0.18;
+  transform-origin: center;
+  animation: footer-signal-pulse 16s ease-in-out infinite;
+}
+.footer-signal-field__node--soft {
+  fill: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+  animation-duration: 20s;
+  animation-delay: -6s;
+}
+@keyframes footer-signal-flow {
+  to {
+    stroke-dashoffset: -1400;
+  }
+}
+@keyframes footer-signal-pulse {
+  0%,
+  100% {
+    transform: scale(0.98);
+    opacity: 0.14;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.22;
+  }
+}
+@media (max-width: 899px) {
+  .footer-signal-field__band {
+    opacity: 0.18;
+  }
+  .footer-signal-field__node {
+    opacity: 0.14;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-signal-field__band,
+  .footer-signal-field__node {
+    animation: none !important;
+  }
+  .footer-signal-field__band {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    opacity: 0.16;
+  }
+  .footer-signal-field__node {
+    opacity: 0.12;
+  }
 }
 .public-footer__grid {
   display: grid;
@@ -687,6 +863,145 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-faint);
+}
+.public-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+.public-footer__legal a {
+  color: var(--text-faint);
+}
+.public-footer__legal a:hover {
+  color: var(--color-primary);
+}
+.public-footer__legal-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+.public-footer__legal-btn:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- cookie consent ---------- */
+.cookie-consent {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+.cookie-consent__backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-background) 40%, transparent);
+  pointer-events: auto;
+}
+.cookie-consent__panel {
+  position: relative;
+  pointer-events: auto;
+  width: min(960px, calc(100vw - 24px));
+  margin: 0 12px 16px;
+  background: var(--bg);
+  border: 1px solid var(--frame);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 40px 80px color-mix(in srgb, var(--color-background) 60%, transparent);
+  overflow: hidden;
+}
+.cookie-consent__content {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(18px, 4vw, 28px);
+}
+.cookie-consent__title {
+  font-size: clamp(22px, 3vw, 30px);
+  margin: 0 0 var(--space-2);
+}
+.cookie-consent__text {
+  color: var(--text-dim);
+  margin: 0;
+  max-width: 72ch;
+}
+.cookie-consent__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  justify-content: flex-end;
+}
+.cookie-consent__btn {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--frame);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.cookie-consent__btn--primary {
+  background: var(--color-primary);
+  color: var(--on-accent);
+  border-color: transparent;
+}
+.cookie-consent__btn--ghost:hover {
+  color: var(--color-primary);
+}
+.cookie-consent__categories {
+  display: grid;
+  gap: var(--space-3);
+}
+.cookie-consent__category {
+  border: 1px solid var(--frame-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+.cookie-consent__category--toggle {
+  cursor: pointer;
+}
+.cookie-consent__category-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.cookie-consent__category-title {
+  font-weight: 600;
+}
+.cookie-consent__category-state {
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.cookie-consent__category-desc {
+  color: var(--text-dim);
+  margin: 0;
+}
+.cookie-consent__footnote {
+  color: var(--text-faint);
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .cookie-consent__actions {
+    justify-content: stretch;
+  }
+  .cookie-consent__btn {
+    flex: 1 1 100%;
+  }
 }
 /* ---------- shared page hero (inner pages) ---------- */
 .page-hero {
@@ -771,6 +1086,110 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* ---------- experimental light field (hero motion) ----------
+   Layered, flowing energy shapes derived from active branding tokens.
+   Distinct from CosmicField; uses GPU-friendly transforms/opacity. */
+.hero-light-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+.hero-light-field__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero-light-field__blob {
+  filter: blur(60px);
+  opacity: 0.42;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+.hero-light-field__blob--one {
+  fill: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  transform-origin: 30% 40%;
+  animation: hero-light-drift-1 38s ease-in-out infinite alternate;
+}
+.hero-light-field__blob--two {
+  fill: color-mix(in srgb, var(--color-secondary) 46%, transparent);
+  transform-origin: 70% 30%;
+  animation: hero-light-drift-2 46s ease-in-out infinite alternate;
+}
+.hero-light-field__blob--three {
+  fill: color-mix(in srgb, var(--color-accent) 38%, transparent);
+  transform-origin: 50% 70%;
+  animation: hero-light-drift-3 52s ease-in-out infinite alternate;
+}
+.hero-light-field__ribbon {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 34%, transparent);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.32;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: hero-light-ribbon 28s linear infinite;
+}
+.hero-light-field__ribbon--soft {
+  stroke: color-mix(in srgb, var(--color-secondary) 26%, transparent);
+  animation-duration: 34s;
+  animation-delay: -8s;
+}
+@keyframes hero-light-drift-1 {
+  0% {
+    transform: translate3d(-6%, -4%, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(4%, 6%, 0) scale(1.08);
+  }
+}
+@keyframes hero-light-drift-2 {
+  0% {
+    transform: translate3d(5%, -3%, 0) scale(0.98);
+  }
+  100% {
+    transform: translate3d(-4%, 5%, 0) scale(1.1);
+  }
+}
+@keyframes hero-light-drift-3 {
+  0% {
+    transform: translate3d(-2%, 4%, 0) scale(1.02);
+  }
+  100% {
+    transform: translate3d(6%, -4%, 0) scale(0.96);
+  }
+}
+@keyframes hero-light-ribbon {
+  to {
+    stroke-dashoffset: -1200;
+  }
+}
+@media (max-width: 899px) {
+  .hero-light-field__blob {
+    filter: blur(40px);
+    opacity: 0.32;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-light-field__blob,
+  .hero-light-field__ribbon {
+    animation: none !important;
+  }
+  .hero-light-field__blob {
+    opacity: 0.24;
+  }
+  .hero-light-field__ribbon {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    opacity: 0.18;
+  }
 }
 /* ---------- section headings ---------- */
 .section-head {

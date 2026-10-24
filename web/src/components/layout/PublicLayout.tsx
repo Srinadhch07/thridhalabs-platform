@@ -15,6 +15,7 @@ import { SkipLink } from './SkipLink'
 import { Header } from './Header'
 import { Main } from './Main'
 import { Footer } from './Footer'
+import { CookieConsentBanner } from '../ui/CookieConsentBanner'
 import MaintenancePage from '../../pages/public/MaintenancePage'
 
 /** Renders the maintenance page instead of children when enabled. */
@@ -43,6 +44,7 @@ export function PublicLayout() {
       <Header />
       <Main className="site-main--public">{content}</Main>
       <Footer />
+      <CookieConsentBanner />
     </div>
   )
 }

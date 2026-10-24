@@ -24,10 +24,13 @@ import ClientsPage from '../../pages/public/ClientsPage'
 import ContactPage from '../../pages/public/ContactPage'
 import HomePage from '../../pages/public/HomePage'
 import NotFoundPage from '../../pages/public/NotFoundPage'
+import PrivacyPolicyPage from '../../pages/public/PrivacyPolicyPage'
 import ProjectDetailPage from '../../pages/public/ProjectDetailPage'
 import ProjectsPage from '../../pages/public/ProjectsPage'
 import PublicMemberPage from '../../pages/public/PublicMemberPage'
 import PublicWorkPage from '../../pages/public/PublicWorkPage'
+import TermsAndConditionsPage from '../../pages/public/TermsAndConditionsPage'
+import CookiePolicyPage from '../../pages/public/CookiePolicyPage'
 import VerifyCertificatePage from '../../pages/public/VerifyCertificatePage'
 import VerifyActivityCertificatePage from '../../pages/public/VerifyActivityCertificatePage'
 import TestimonialsPage from '../../pages/public/TestimonialsPage'
@@ -60,6 +63,7 @@ import AdminCertificatesPage from '../../pages/admin/AdminCertificatesPage'
 import AdminActivityCertificatesPage from '../../pages/admin/AdminActivityCertificatesPage'
 import AdminAiSettingsPage from '../../pages/admin/ai/AdminAiSettingsPage'
 import AdminAiSummariesPage from '../../pages/admin/ai/AdminAiSummariesPage'
+import AdminLegalPagesPage from '../../pages/admin/legal/AdminLegalPagesPage'
 import AdminNotFoundPage from '../../pages/admin/AdminNotFoundPage'
 import MemberLoginPage from '../../pages/member/MemberLoginPage'
 import MemberSetupPage from '../../pages/member/MemberSetupPage'
@@ -89,6 +93,9 @@ export function AppRouter() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/careers" element={<CareersPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+        <Route path="/cookie-policy" element={<CookiePolicyPage />} />
         <Route path="/members/:memberId" element={<PublicMemberPage />} />
         <Route path="/members/:memberId/works/:slug" element={<PublicWorkPage />} />
         <Route path="/verify-certificate/:certificateId" element={<VerifyCertificatePage />} />
@@ -129,6 +136,7 @@ export function AppRouter() {
         <Route path="certifications/:requestId" element={<AdminCertificationDetailPage />} />
         <Route path="certificates" element={<AdminCertificatesPage />} />
         <Route path="activity-certificates" element={<AdminActivityCertificatesPage />} />
+        <Route path="legal" element={<AdminLegalPagesPage />} />
         <Route path="account" element={<AdminAccountPage />} />
         <Route path="*" element={<AdminNotFoundPage />} />
       </Route>
