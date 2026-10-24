@@ -2,7 +2,7 @@
  * Home page — the public Thridha Labs landing.
  *
  * Rebuilt as a Swiss editorial composition: an oversized type-driven hero with
- * the animated BackgroundPaths backdrop, then a disciplined sequence of
+ * the restrained CosmicField backdrop, then a disciplined sequence of
  * numbered, asymmetrically aligned sections (selected work, capabilities,
  * programmes, collaborators, signal, closing invitation).
  *
@@ -50,31 +50,143 @@ function HeroSection() {
   const item: Variants = reduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : HERO_ITEM
 
   return (
-    <section className="hero hero--editorial" aria-labelledby="hero-title">
+    <section className="hero hero--editorial hero--refined-a" aria-labelledby="hero-title">
       <CosmicField />
 
-      <motion.div className="shell hero-editorial" variants={container} initial="hidden" animate="show">
-        <motion.p className="hero-editorial__eyebrow" variants={item}>
-          <span className="hud-dot" aria-hidden="true" />
-          Independent AI-first experimental lab
-        </motion.p>
+      <motion.div className="shell hero-editorial hero-editorial--refined-a" variants={container} initial="hidden" animate="show">
+        <motion.div variants={item}>
+          <p className="hero-editorial__eyebrow hero-editorial__eyebrow--refined">
+            <span aria-hidden="true">[</span> LAB.LOG <span aria-hidden="true">]</span> &nbsp;|&nbsp; AI-FIRST TECHNOLOGY &amp; EXPERIMENTATION LAB
+          </p>
+        </motion.div>
 
-        <motion.h1 id="hero-title" className="hero-editorial__title" variants={item}>
-          Exploring what intelligence{' '}
-          <span className="hero-editorial__title-ghost">can become.</span>
+        <motion.h1 id="hero-title" className="hero-editorial__title hero-editorial__title--refined-a" variants={item}>
+          AI systems that turn experiments into{' '}
+          <span className="hero-editorial__title-emph">working products</span>
         </motion.h1>
 
-        <motion.div className="hero-editorial__foot" variants={item}>
-          <p className="hero-editorial__support">
-            We experiment with AI, build intelligent systems, and turn emerging ideas into
-            working products.
+        <motion.div className="hero-editorial__foot hero-editorial__foot--refined-a" variants={item}>
+          <div className="hero-editorial__support-block">
+            <p className="hero-editorial__support">
+              Thridha Labs explores emerging AI, builds intelligent software, and solves real-world problems through applied research and product development.
+            </p>
+            <p className="hero-editorial__support hero-editorial__support--muted">
+              From R&amp;D prototypes to client platforms and member-built tools.
+            </p>
+          </div>
+          <div className="hero-editorial__actions">
+            <div className="cta-row hero-editorial__cta">
+              <Link className="btn btn--primary btn--refined" to="/projects">
+                Explore our work &amp; experiments
+              </Link>
+              <Link className="btn btn--ghost btn--refined" to="/contact">
+                Discuss a project
+              </Link>
+              <Link className="btn btn--ghost btn--refined" to="/careers">
+                Lab Member opportunities
+              </Link>
+            </div>
+            <p className="hero-editorial__microcopy">
+              <span aria-hidden="true">[</span> SYS.001 <span aria-hidden="true">]</span> Applied AI • Intelligent Systems • Practical Delivery
+            </p>
+          </div>
+        </motion.div>
+      </motion.div>
+    </section>
+  )
+}
+
+function HeroSectionA() {
+  const reduceMotion = useReducedMotion()
+  const container: Variants = reduceMotion ? { hidden: {}, show: {} } : HERO_STAGGER
+  const item: Variants = reduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : HERO_ITEM
+
+  return (
+    <section className="hero hero--editorial hero--proto-a" aria-labelledby="hero-title-a">
+      <CosmicField />
+
+      <motion.div className="shell hero-editorial hero-editorial--proto-a" variants={container} initial="hidden" animate="show">
+        <motion.div variants={item}>
+          <p className="hero-editorial__eyebrow hero-editorial__eyebrow--mono">
+            <span aria-hidden="true">[</span> LAB.LOG <span aria-hidden="true">]</span> :: AI-FIRST EXPLORATION
           </p>
+        </motion.div>
+
+        <motion.h1 id="hero-title-a" className="hero-editorial__title hero-editorial__title--proto-a" variants={item}>
+          INTELLIGENCE{' '}
+          <span className="hero-editorial__title-glow">IN MOTION</span>
+        </motion.h1>
+
+        <motion.div className="hero-editorial__foot hero-editorial__foot--proto-a" variants={item}>
+          <div className="hero-editorial__support-block">
+            <p className="hero-editorial__support hero-editorial__support--mono">
+              {reduceMotion ? '> ' : '> '}
+              <span className="typing-cursor">Experimenting with agents, systems &amp; emergent behavior</span>
+            </p>
+            <p className="hero-editorial__support hero-editorial__support--mono">
+              {'> '}Turning hypotheses into working intelligence
+            </p>
+          </div>
           <div className="cta-row hero-editorial__cta">
-            <Link className="btn btn--primary" to="/projects?type=experiment">
-              Explore our experiments
+            <Link className="btn btn--primary btn--glow" to="/projects?type=experiment">
+              &gt; Run experiments
             </Link>
-            <Link className="btn btn--ghost" to="/projects">
-              See what we&apos;re building
+            <Link className="btn btn--ghost btn--mono" to="/projects">
+              &gt; View systems
+            </Link>
+            <Link className="btn btn--ghost btn--mono" to="/careers">
+              &gt; Join the lab
+            </Link>
+          </div>
+        </motion.div>
+      </motion.div>
+    </section>
+  )
+}
+
+function HeroSectionB() {
+  const reduceMotion = useReducedMotion()
+  const container: Variants = reduceMotion ? { hidden: {}, show: {} } : HERO_STAGGER
+  const item: Variants = reduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : HERO_ITEM
+
+  return (
+    <section className="hero hero--editorial hero--proto-b" aria-labelledby="hero-title-b">
+      <div className="hero-broadsheet__bg" aria-hidden="true" />
+      <div className="hero-broadsheet__grid" aria-hidden="true" />
+
+      <motion.div className="shell hero-editorial hero-editorial--proto-b" variants={container} initial="hidden" animate="show">
+        <motion.div className="hero-broadsheet__kicker" variants={item}>
+          <span className="hero-broadsheet__kicker-line">THRIDHA LABS / AI-FIRST TECHNOLOGY LAB</span>
+          <span className="hero-broadsheet__kicker-line">EST. 2024 / EXPERIMENT → BUILD → SHIP</span>
+        </motion.div>
+
+        <motion.h1 id="hero-title-b" className="hero-editorial__title hero-editorial__title--proto-b" variants={item}>
+          SYSTEMS{' '}
+          <span className="hero-editorial__title-serif">OF INTELLIGENCE</span>
+        </motion.h1>
+
+        <motion.div className="hero-editorial__foot hero-editorial__foot--proto-b" variants={item}>
+          <div className="hero-editorial__support-block">
+            <p className="hero-editorial__support hero-editorial__support--broadsheet">
+              A technology lab building intelligent products and platforms with rigor. We combine R&amp;D with real-world delivery for businesses and ambitious builders.
+            </p>
+            <div className="hero-broadsheet__meta">
+              <span>Client Solutions</span>
+              <span>•</span>
+              <span>Lab Research</span>
+              <span>•</span>
+              <span>Member Projects</span>
+            </div>
+          </div>
+          <div className="cta-row hero-editorial__cta hero-editorial__cta--broadsheet">
+            <Link className="btn btn--primary btn--sharp" to="/contact">
+              Start a project
+            </Link>
+            <Link className="btn btn--ghost btn--sharp" to="/careers">
+              Lab Member Opportunities
+            </Link>
+            <Link className="btn btn--ghost btn--sharp" to="/projects">
+              View portfolio
             </Link>
           </div>
         </motion.div>
@@ -208,21 +320,119 @@ const PRACTICE: Array<{ index: string; name: string; detail: string }> = [
 
 function PracticeSection() {
   return (
-    <section className="section" aria-labelledby="practice-title">
+    <section className="section section--refined" aria-labelledby="practice-title">
       <div className="shell">
-        <Reveal className="practice">
+        <Reveal className="practice practice--refined">
           <div className="practice__intro">
-            <p className="ed-head__label">What we do</p>
-            <h2 id="practice-title" className="ed-head__title">
-              An AI-first lab that experiments, builds and delivers.
+            <p className="ed-head__label">
+              <span aria-hidden="true">[</span> CAPABILITIES <span aria-hidden="true">]</span>
+            </p>
+            <h2 id="practice-title" className="ed-head__title ed-head__title--refined">
+              Applied AI, built for real-world impact
             </h2>
             <p className="practice__lede">
-              One team across the whole arc — from an open question to a working product.
+              Thridha Labs bridges experimentation and delivery — combining research with practical engineering to ship intelligent systems that solve concrete problems.
+            </p>
+            <div className="practice-refined__highlights">
+              <div className="practice-refined__highlight">
+                <span className="practice-refined__dot" aria-hidden="true" />
+                <span>For clients: AI-powered platforms &amp; custom solutions</span>
+              </div>
+              <div className="practice-refined__highlight">
+                <span className="practice-refined__dot" aria-hidden="true" />
+                <span>For members: build, showcase, and grow with the lab</span>
+              </div>
+            </div>
+          </div>
+          <ul className="practice__list practice__list--refined">
+            {PRACTICE.map((item, index) => (
+              <li key={item.name} className="practice-item practice-item--refined">
+                <Reveal delay={index * 70}>
+                  <span className="practice-item__index practice-item__index--refined" aria-hidden="true">
+                    SYS.{item.index}
+                  </span>
+                  <div className="practice-item__body">
+                    <span className="practice-item__name">{item.name}</span>
+                    <span className="practice-item__detail">{item.detail}</span>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function PracticeSectionA() {
+  return (
+    <section className="section section--proto-a" aria-labelledby="practice-title-a">
+      <div className="shell">
+        <Reveal className="practice practice--proto-a">
+          <div className="practice__intro">
+            <p className="ed-head__label ed-head__label--mono">
+              <span aria-hidden="true">[</span> SYSTEM MAP <span aria-hidden="true">]</span>
+            </p>
+            <h2 id="practice-title-a" className="ed-head__title ed-head__title--mono">
+              R&amp;D → PROTOTYPE → DEPLOY
+            </h2>
+            <p className="practice__lede practice__lede--mono">
+              Each experiment yields a module. Modules compose into systems. Systems ship as products.
             </p>
           </div>
-          <ul className="practice__list">
+          <ul className="practice__list practice__list--proto-a">
             {PRACTICE.map((item, index) => (
-              <li key={item.name} className="practice-item">
+              <li key={item.name} className="practice-item practice-item--proto-a">
+                <Reveal delay={index * 60}>
+                  <span className="practice-item__index practice-item__index--mono" aria-hidden="true">
+                    SYS.{item.index}
+                  </span>
+                  <div className="practice-item__body">
+                    <span className="practice-item__name practice-item__name--mono">{item.name}</span>
+                    <span className="practice-item__detail practice-item__detail--mono">{item.detail}</span>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function PracticeSectionB() {
+  return (
+    <section className="section section--proto-b" aria-labelledby="practice-title-b">
+      <div className="shell">
+        <Reveal className="practice practice--proto-b">
+          <div className="practice__intro">
+            <p className="ed-head__label">Practice</p>
+            <h2 id="practice-title-b" className="ed-head__title ed-head__title--broadsheet">
+              Disciplined experimentation for measurable outcomes.
+            </h2>
+            <p className="practice__lede">
+              From strategic R&amp;D to client delivery, we maintain the same standards of clarity, rigor, and craft.
+            </p>
+            <div className="practice-broadsheet__callouts">
+              <div className="practice-broadsheet__callout">
+                <span className="practice-broadsheet__callout-num">01</span>
+                <span>Clarity over complexity</span>
+              </div>
+              <div className="practice-broadsheet__callout">
+                <span className="practice-broadsheet__callout-num">02</span>
+                <span>Evidence over claims</span>
+              </div>
+              <div className="practice-broadsheet__callout">
+                <span className="practice-broadsheet__callout-num">03</span>
+                <span>Systems over one-offs</span>
+              </div>
+            </div>
+          </div>
+          <ul className="practice__list practice__list--proto-b">
+            {PRACTICE.map((item, index) => (
+              <li key={item.name} className="practice-item practice-item--proto-b">
                 <Reveal delay={index * 80}>
                   <span className="practice-item__index" aria-hidden="true">
                     {item.index}
@@ -489,8 +699,8 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <SelectedWorkSection projects={selected} error={projects.error} reload={projects.reload} />
       <PracticeSection />
+      <SelectedWorkSection projects={selected} error={projects.error} reload={projects.reload} />
       <ProcessSection />
       <TechnologySection projects={sortedProjects} />
       <ActivityCarousel />

@@ -13,6 +13,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useCareers } from '../../app/providers/CareersProvider'
 
 const BASE_NAV_ITEMS = [
+  { to: '/', label: 'Home' },
   { to: '/projects', label: 'Projects' },
   { to: '/activities', label: 'Activities' },
   { to: '/clients', label: 'Clients' },
@@ -21,27 +22,7 @@ const BASE_NAV_ITEMS = [
   { to: '/contact', label: 'Contact' },
 ] as const
 
-function HomeIcon() {
-  return (
-    <svg
-      className="public-nav__icon"
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M3.5 10.5 12 4l8.5 6.5" />
-      <path d="M5.5 9.5V19h13V9.5" />
-      <path d="M10 19v-5h4v5" />
-    </svg>
-  )
-}
+
 
 export function Navigation() {
   const [open, setOpen] = useState(false)
@@ -95,7 +76,7 @@ export function Navigation() {
       <button
         ref={buttonRef}
         type="button"
-        className="menu-toggle"
+        className={`menu-toggle${open ? ' is-open' : ''}`}
         aria-expanded={open}
         aria-controls="public-site-menu"
         onClick={() => setOpen((value) => !value)}
@@ -115,15 +96,9 @@ export function Navigation() {
       >
         <nav className="public-nav" aria-label="Primary">
           <ul className="public-nav__list">
-            <li>
-              <NavLink to="/" end onClick={close} className="public-nav__home">
-                <HomeIcon />
-                Home
-              </NavLink>
-            </li>
             {navItems.map((item) => (
               <li key={item.to}>
-                <NavLink to={item.to} onClick={close}>
+                <NavLink to={item.to} end={item.to === '/'} onClick={close}>
                   {item.label}
                 </NavLink>
               </li>

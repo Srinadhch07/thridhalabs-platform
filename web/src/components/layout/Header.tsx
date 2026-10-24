@@ -14,11 +14,7 @@ import { Navigation } from './Navigation'
 function brandMark(siteName: string) {
   const match = /^thridha labs$/i.test(siteName)
   if (match) {
-    return (
-      <>
-        Thridha&nbsp;<span className="public-brand__ghost">Labs</span>
-      </>
-    )
+    return <>Thridha Labs</>
   }
   return siteName
 }
@@ -56,9 +52,7 @@ export function Header() {
         <Link to="/" className="public-brand" aria-label={siteName}>
           {logo ? (
             <img className="public-brand__logo" src={logo} alt={`${siteName} logo`} decoding="async" />
-          ) : (
-            <span className="public-brand__dot" aria-hidden="true" />
-          )}
+          ) : null}
           {brandMark(siteName)}
         </Link>
         <Navigation />

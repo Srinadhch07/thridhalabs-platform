@@ -1255,4 +1255,44 @@ content.
   omitted site-wide rather than pointing at localhost.
 
 
+## Restore Share button
+
+**Symptom**: the public Share button disappeared from member profiles, work
+pages and project pages.
+
+**Root cause**: the Share button used to render whenever a canonical URL
+existed. The SEO change made `absolutePageUrl()` return `null` when no
+publishable production origin is available (no `VITE_SITE_URL`, or a
+localhost/preview origin). All three pages gated the button on
+`{canonicalUrl ? <ShareActions .../> : null}`, so the button was hidden
+everywhere except a build with a non-localhost `VITE_SITE_URL` — i.e. in local
+dev and preview. Open Graph metadata (which legitimately needs the canonical
+origin) was conflated with the visible Share control (which must always work).
+
+**Fix (smallest change)**
+
+- `web/src/lib/utils/seo.ts`: added `shareUrl(path)` — like `absolutePageUrl`
+  but **never `null`**: prefers the configured production origin, else falls back
+  to the current runtime origin (including localhost) and normalises the path.
+- `web/src/pages/public/ProjectDetailPage.tsx`,
+  `web/src/pages/public/PublicMemberPage.tsx`,
+  `web/src/pages/public/PublicWorkPage.tsx`: added a `shareHref` via
+  `shareUrl(...)` and gated `ShareActions` on the loaded `data` (so it renders
+  once data is available) instead of on `canonicalUrl`. `canonicalUrl` is still
+  passed to `usePageMeta` and JSON-LD for metadata — untouched.
+- The `ShareActions` component itself, its icon/label styles, placement,
+  responsive behaviour and clipboard-copy fallback are unchanged.
+- Social-preview images are unchanged and stay driven by per-entity selection
+  (member photo, work cover/first public image, branded site card).
+
+**Verification**
+
+- `npm run typecheck` — clean. `npm run build` — succeeds (pre-existing
+  chunk-size advisory only).
+- `npx vitest run seo share public-members --no-file-parallelism` — **21 passed**
+  (added 2 `shareUrl` cases: canonical-origin resolution + never-null absolute
+  URL).
+- No `.env` changes; no staging/commit/deploy.
+
+
 
