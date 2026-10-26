@@ -864,11 +864,29 @@
   text-transform: uppercase;
   color: var(--text-faint);
 }
-.public-footer__legal {
+.public-footer__legal,
+.public-footer__signature {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2) var(--space-3);
+  gap: var(--space-2) 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.public-footer__legal > li,
+.public-footer__signature > li {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+/* Separators are pseudo-elements of the item they precede, so a dot can never
+   be left orphaned on its own line when the group wraps. */
+.public-footer__legal > li + li::before,
+.public-footer__signature > li + li::before {
+  content: '·';
+  margin: 0 var(--space-3);
+  color: var(--text-faint);
 }
 .public-footer__legal a {
   color: var(--text-faint);
@@ -888,6 +906,10 @@
 }
 .public-footer__legal-btn:hover {
   color: var(--color-primary);
+}
+.public-footer__legal-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ---------- cookie consent ---------- */
@@ -1807,7 +1829,9 @@
   grid-template-columns: repeat(2, 1fr);
 }
 .project-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   position: relative;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
@@ -1822,6 +1846,9 @@
   background: var(--surface-hover);
 }
 .project-card__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   padding: var(--space-6);
 }
 .project-card__meta {
@@ -1842,26 +1869,26 @@
 .project-card h3 {
   font-size: var(--fs-lg);
   margin-bottom: var(--space-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .project-card__desc {
   color: var(--text-secondary);
   font-size: var(--fs-sm);
   line-height: 1.6;
   margin: 0;
-}
-
-.project-card__desc--clamp {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 @media (max-width: 720px) {
-  .project-card__desc--clamp {
-    -webkit-line-clamp: 2;
-  }
   .project-card__body {
     padding: clamp(18px, 5vw, 22px);
   }
@@ -1901,13 +1928,8 @@
     font-size: clamp(28px, 8vw, 40px);
     max-width: 18ch;
   }
-  .public-header__inner {
-    padding: 8px clamp(14px, 4vw, 18px);
-  }
-  .public-brand {
-    font-size: 13px;
-    letter-spacing: 0.1em;
-  }
+  /* Header + brand sizing live in the single <=899px block above; these legacy
+     overrides were shrinking the mobile brand back down to 13px. */
   .menu-toggle {
     width: 44px;
     height: 44px;
@@ -1915,7 +1937,8 @@
 }
 .project-card__more {
   display: block;
-  margin-top: var(--space-6);
+  margin-top: auto;
+  padding-top: var(--space-5);
   font-family: var(--mono);
   font-size: var(--fs-xs);
   letter-spacing: 0.08em;
@@ -2802,6 +2825,11 @@ img.client-tile__monogram {
 .opportunity-card h3 {
   font-size: var(--fs-lg);
   margin-bottom: var(--space-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .opportunity-card__actions {
   flex: 0 0 auto;
@@ -2874,6 +2902,21 @@ img.client-tile__monogram {
     gap: var(--space-7);
   
 }
+  /* Mobile footer bar stacks the groups so long labels wrap inside their own
+     block instead of being squeezed by the horizontal bar layout. */
+  .public-footer__bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .public-footer__legal,
+  .public-footer__signature {
+    row-gap: var(--space-2);
+  }
+  .public-footer__legal > li + li::before,
+  .public-footer__signature > li + li::before {
+    margin: 0 var(--space-2);
+  }
   .section-head {
     align-items: flex-start;
     flex-direction: column;

@@ -90,16 +90,28 @@
   margin: 0;
   font-size: var(--fs-lg);
   line-height: var(--lh-tight);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .activity-card__desc {
-  flex: 1;
+  flex: 1 1 auto;
   margin: 0;
   font-size: var(--fs-sm);
   color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .activity-card__more {
+  margin-top: auto;
   font-family: var(--mono);
   font-size: var(--fs-xs);
   letter-spacing: 0.08em;

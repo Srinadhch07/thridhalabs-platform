@@ -96,7 +96,7 @@ function HeroSection() {
   )
 }
 
-function HeroSectionA() {
+export function HeroSectionA() {
   const reduceMotion = useReducedMotion()
   const container: Variants = reduceMotion ? { hidden: {}, show: {} } : HERO_STAGGER
   const item: Variants = reduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : HERO_ITEM
@@ -144,7 +144,7 @@ function HeroSectionA() {
   )
 }
 
-function HeroSectionB() {
+export function HeroSectionB() {
   const reduceMotion = useReducedMotion()
   const container: Variants = reduceMotion ? { hidden: {}, show: {} } : HERO_STAGGER
   const item: Variants = reduceMotion ? { hidden: { opacity: 1 }, show: { opacity: 1 } } : HERO_ITEM
@@ -365,7 +365,7 @@ function PracticeSection() {
   )
 }
 
-function PracticeSectionA() {
+export function PracticeSectionA() {
   return (
     <section className="section section--proto-a" aria-labelledby="practice-title-a">
       <div className="shell">
@@ -402,7 +402,7 @@ function PracticeSectionA() {
   )
 }
 
-function PracticeSectionB() {
+export function PracticeSectionB() {
   return (
     <section className="section section--proto-b" aria-labelledby="practice-title-b">
       <div className="shell">

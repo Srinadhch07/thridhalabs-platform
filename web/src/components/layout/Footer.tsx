@@ -80,18 +80,27 @@ export function Footer() {
 
       <div className="shell public-footer__bar">
         <span>{copyright}</span>
-        <div className="public-footer__legal">
-          <Link to="/privacy-policy">Privacy Policy</Link>
-          <span aria-hidden="true">·</span>
-          <Link to="/terms-and-conditions">Terms &amp; Conditions</Link>
-          <span aria-hidden="true">·</span>
-          <Link to="/cookie-policy">Cookie Policy</Link>
-          <span aria-hidden="true">·</span>
-          <button type="button" className="public-footer__legal-btn" data-cookie-preferences>
-            Cookie Preferences
-          </button>
-        </div>
-        <span>Websites · Applications · Experiments</span>
+        <ul className="public-footer__legal">
+          <li>
+            <Link to="/privacy-policy">Privacy Policy</Link>
+          </li>
+          <li>
+            <Link to="/terms-and-conditions">Terms & Conditions</Link>
+          </li>
+          <li>
+            <Link to="/cookie-policy">Cookie Policy</Link>
+          </li>
+          <li>
+            <button type="button" className="public-footer__legal-btn" data-cookie-preferences>
+              Cookie Preferences
+            </button>
+          </li>
+        </ul>
+        <ul className="public-footer__signature">
+          <li>Websites</li>
+          <li>Applications</li>
+          <li>Experiments</li>
+        </ul>
       </div>
     </footer>
   )
