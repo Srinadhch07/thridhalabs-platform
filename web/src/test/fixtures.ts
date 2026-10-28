@@ -48,6 +48,11 @@ import type {
   MemberReport,
 } from '../types/report'
 import type {
+  ActivitySubmission,
+  ActivityWorkspace,
+  AdminActivitySubmission,
+} from '../types/activitySubmission'
+import type {
   AiSourceOverviewResponse,
   AiSummaryAdminResponse,
   AiSummaryListResponse,
@@ -773,6 +778,12 @@ export const adminActivityFixture: AdminActivity = {
   display_order: 0,
   roles_offered: publicActivityFixture.roles_offered,
   tags: publicActivityFixture.tags,
+  objectives: ['Ship a working prototype'],
+  instructions: 'Work in a team of your choice — participation is individual.',
+  requirements: ['A public repository'],
+  resources: [{ label: 'Starter repo', url: 'https://github.com/thridhalabs/starter' }],
+  tasks: [{ id: 't-1', title: 'Build the prototype', description: '', due_date: null }],
+  required_deliverables: ['description', 'repository_url'],
   brief: { version: 1, filename: 'brief.pdf', size_bytes: 2048, uploaded_at: '2026-02-01T00:00:00Z' },
   brief_history_count: 1,
   cancel_reason: null,
@@ -829,6 +840,129 @@ export const activityParticipantsFixture = (): Paginated<ActivityParticipant> =>
       updated_at: '2026-02-03T00:00:00Z',
     },
   ])
+
+// --- Activity workspaces -----------------------------------------------------
+
+/** One progress update filed by the member. */
+export const activityProgressUpdateFixture: ActivitySubmission = {
+  id: 'sub-update-1',
+  activity_id: 'a-1',
+  activity_slug: 'ai-builders-programme-2026',
+  activity_title: 'AI Builders Programme 2026',
+  activity_type: 'programme',
+  member_id: memberMeFixture.id,
+  member_readable_id: memberMeFixture.member_id,
+  kind: 'progress_update',
+  title: null,
+  description: 'Finished the sensor-fusion milestone.',
+  repository_url: null,
+  demo_url: null,
+  evidence_links: [],
+  attachment_media_ids: [],
+  status: 'pending',
+  version: 1,
+  editable: true,
+  submitted_at: '2026-02-10T09:00:00Z',
+  updated_at: '2026-02-10T09:00:00Z',
+  reviewed_at: null,
+  reviewed_by: null,
+  review_feedback: null,
+  review_history: [],
+  revisions: [],
+}
+
+/** The member's single deliverable for one activity. */
+export const activityDeliverableFixture: ActivitySubmission = {
+  id: 'sub-deliverable-1',
+  activity_id: 'a-1',
+  activity_slug: 'ai-builders-programme-2026',
+  activity_title: 'AI Builders Programme 2026',
+  activity_type: 'programme',
+  member_id: memberMeFixture.id,
+  member_readable_id: memberMeFixture.member_id,
+  kind: 'deliverable',
+  title: 'Ambient inference notebook',
+  description: 'A notebook that streams sensor data into a local model.',
+  repository_url: 'https://github.com/thridhalabs/ambient-inference',
+  demo_url: null,
+  evidence_links: ['https://example.com/notes'],
+  attachment_media_ids: [],
+  status: 'pending',
+  version: 1,
+  editable: true,
+  submitted_at: '2026-02-12T09:00:00Z',
+  updated_at: '2026-02-12T09:00:00Z',
+  reviewed_at: null,
+  reviewed_by: null,
+  review_feedback: null,
+  review_history: [],
+  revisions: [],
+}
+
+/** The member's individual workspace for one programme. */
+export const activityWorkspaceFixture: ActivityWorkspace = {
+  activity_id: 'a-1',
+  slug: 'ai-builders-programme-2026',
+  title: 'AI Builders Programme 2026',
+  activity_type: 'programme',
+  summary: 'A four-week programme for applied AI builders.',
+  description: 'Build and ship one applied AI project end to end.',
+  presentation_status: 'ongoing',
+  start_date: '2026-02-01',
+  end_date: '2026-03-28',
+  banner_media_id: null,
+  has_brief: true,
+  objectives: ['Ship a working prototype'],
+  instructions: 'Work independently — participation is individual.',
+  requirements: ['A public repository'],
+  resources: [{ label: 'Starter repo', url: 'https://github.com/thridhalabs/starter' }],
+  required_deliverables: ['description', 'repository_url'],
+  participation_status: 'confirmed',
+  participation_role: null,
+  tasks: [
+    {
+      id: 'task-1',
+      title: 'Build the prototype',
+      description: 'Ship a runnable prototype.',
+      due_date: '2026-03-01',
+      completed: true,
+    },
+    {
+      id: 'task-2',
+      title: 'Write the report',
+      description: 'Document your findings.',
+      due_date: null,
+      completed: false,
+    },
+  ],
+  completed_task_count: 1,
+  task_count: 2,
+  progress_percent: 50,
+  deliverable: activityDeliverableFixture,
+  progress_updates: [activityProgressUpdateFixture],
+  can_submit: true,
+  submit_blocked_reason: null,
+}
+
+/** The member's workspace with nothing submitted yet. */
+export const emptyActivityWorkspaceFixture: ActivityWorkspace = {
+  ...activityWorkspaceFixture,
+  deliverable: null,
+  progress_updates: [],
+  completed_task_count: 0,
+  progress_percent: 0,
+}
+
+/** Admin view of one submission (adds the member's identity). */
+export const adminActivitySubmissionFixture: AdminActivitySubmission = {
+  ...activityDeliverableFixture,
+  member_name: 'Ada Lovelace',
+  member_email: memberMeFixture.email,
+}
+
+export const activityWorkspaceListFixture = (): { items: ActivityWorkspace[] } => ({
+  items: [activityWorkspaceFixture],
+})
 
 // --- Progress reports ---------------------------------------------------------
 

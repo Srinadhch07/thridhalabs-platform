@@ -78,6 +78,7 @@ import MemberCertificationsPage from '../../pages/member/MemberCertificationsPag
 import MemberProjectsPage from '../../pages/member/MemberProjectsPage'
 import MemberProjectReportsPage from '../../pages/member/MemberProjectReportsPage'
 import MemberContributionsPage from '../../pages/member/MemberContributionsPage'
+import MemberActivityWorkspacePage from '../../pages/member/MemberActivityWorkspacePage'
 
 export function AppRouter() {
   return (
@@ -157,6 +158,7 @@ export function AppRouter() {
           <Route path="account" element={<MemberAccountPage />} />
           <Route path="works" element={<MemberWorksPage />} />
           <Route path="activities" element={<MemberActivitiesPage />} />
+          <Route path="activities/:slug" element={<MemberActivityWorkspacePage />} />
           <Route path="works/new" element={<WorkEditorPage />} />
           <Route path="works/:workId/edit" element={<WorkEditorPage />} />
           <Route path="works/:workId/preview" element={<WorkPreviewPage />} />
@@ -171,4 +173,3 @@ export function AppRouter() {
     </Routes>
   )
 }
-

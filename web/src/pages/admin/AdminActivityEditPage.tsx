@@ -29,6 +29,9 @@ import {
 import { PageHeader } from '../../components/admin/PageHeader'
 import { ActivityInvitationsPanel } from '../../components/admin/ActivityInvitationsPanel'
 import { ActivityParticipantsPanel } from '../../components/admin/ActivityParticipantsPanel'
+import { ActivitySubmissionsPanel } from '../../components/admin/ActivitySubmissionsPanel'
+import { ActivityWorkspaceConfigFields } from '../../components/admin/ActivityWorkspaceConfigFields'
+import type { ActivityWorkspaceConfigValues } from '../../components/admin/ActivityWorkspaceConfigFields'
 import { FormField } from '../../components/form/FormField'
 import { TextInput } from '../../components/form/TextInput'
 import { Textarea } from '../../components/form/Textarea'
@@ -40,7 +43,11 @@ import { SaveButton } from '../../components/form/SaveButton'
 import { ConfirmDialog } from '../../components/form/ConfirmDialog'
 import { ContentSkeleton } from '../../components/ui/ContentSkeleton'
 import { ErrorState } from '../../components/ui/ErrorState'
-import type { ActivityStatus, ActivityType } from '../../types/activity'
+import type {
+  ActivityStatus,
+  ActivityType,
+  RequiredDeliverable,
+} from '../../types/activity'
 
 /** Banner previews use the large variant so the 16:9 frame stays sharp. */
 function resolveBannerPreviewUrl(mediaId: string): Promise<string | null> {
@@ -71,6 +78,15 @@ export default function AdminActivityEditPage() {
     roles_offered: '',
     tags: '',
     cancel_reason: '',
+  })
+
+  const [workspaceConfig, setWorkspaceConfig] = useState<ActivityWorkspaceConfigValues>({
+    objectives: '',
+    instructions: '',
+    requirements: '',
+    resources: [],
+    tasks: [],
+    required_deliverables: [],
   })
 
   const [dirty, setDirty] = useState(false)
@@ -105,11 +121,24 @@ export default function AdminActivityEditPage() {
       tags: data.tags.join(', '),
       cancel_reason: data.cancel_reason ?? '',
     })
+    setWorkspaceConfig({
+      objectives: (data.objectives ?? []).join('\n'),
+      instructions: data.instructions ?? '',
+      requirements: (data.requirements ?? []).join('\n'),
+      resources: data.resources ?? [],
+      tasks: data.tasks ?? [],
+      required_deliverables: (data.required_deliverables ?? []) as RequiredDeliverable[],
+    })
     setDirty(false)
   }, [data])
 
   function patch(p: Partial<typeof form>): void {
     setForm((prev) => ({ ...prev, ...p }))
+    setDirty(true)
+  }
+
+  function patchWorkspace(values: ActivityWorkspaceConfigValues): void {
+    setWorkspaceConfig(values)
     setDirty(true)
   }
 
@@ -144,6 +173,27 @@ export default function AdminActivityEditPage() {
         .map((tag) => tag.trim())
         .filter(Boolean),
       cancel_reason: form.status === 'cancelled' ? form.cancel_reason.trim() || null : null,
+      objectives: workspaceConfig.objectives
+        .split('\n')
+        .map((objective) => objective.trim())
+        .filter(Boolean),
+      instructions: workspaceConfig.instructions.trim(),
+      requirements: workspaceConfig.requirements
+        .split('\n')
+        .map((requirement) => requirement.trim())
+        .filter(Boolean),
+      resources: workspaceConfig.resources
+        .map((resource) => ({ label: resource.label.trim(), url: resource.url.trim() }))
+        .filter((resource) => resource.label && resource.url),
+      tasks: workspaceConfig.tasks
+        .map((task) => ({
+          id: task.id,
+          title: task.title.trim(),
+          description: task.description.trim(),
+          due_date: task.due_date || null,
+        }))
+        .filter((task) => task.title),
+      required_deliverables: workspaceConfig.required_deliverables,
     }
     setSaving(true)
     setSaveError(null)
@@ -380,6 +430,19 @@ export default function AdminActivityEditPage() {
         </section>
 
         <section className="admin-section">
+          <h2 className="admin-section__title">Workspace</h2>
+          <p className="admin-section__hint">
+            Each participant gets an individual workspace with this content, their own checklist and
+            their own deliverable.
+          </p>
+          <ActivityWorkspaceConfigFields
+            values={workspaceConfig}
+            onChange={patchWorkspace}
+            disabled={form.activity_type !== 'programme' && form.activity_type !== 'hackathon'}
+          />
+        </section>
+
+        <section className="admin-section">
           <h2 className="admin-section__title">Banner</h2>
           <ImageUploadField
             id="activity-banner"
@@ -503,6 +566,10 @@ export default function AdminActivityEditPage() {
 
       {!isNew && data ? <ActivityParticipantsPanel activityId={data.id} /> : null}
 
+      {!isNew && data && (data.activity_type === 'programme' || data.activity_type === 'hackathon') ? (
+        <ActivitySubmissionsPanel activityId={data.id} />
+      ) : null}
+
       <p style={{ marginTop: 'var(--space-5)' }}>
         <Link className="btn btn--ghost btn--sm" to="/admin/activities">
           Back to activities
@@ -522,3 +589,4 @@ export default function AdminActivityEditPage() {
     </div>
   )
 }
+

@@ -38,7 +38,7 @@ export default defineConfig({
     env: {
       // A non-localhost canonical origin so SEO helpers emit canonical/OG URLs
       // in tests, mirroring a configured production build.
-      VITE_SITE_URL: 'https://thridhalabs.test',
+      VITE_SITE_URL: 'https://thridhalabs.in',
     },
   },
 })

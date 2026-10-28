@@ -113,8 +113,8 @@
   --panel-2: color-mix(in srgb, var(--color-text) 12%, transparent);
   --frame: color-mix(in srgb, var(--color-text) 18%, transparent);
   --frame-soft: color-mix(in srgb, var(--color-text) 11%, transparent);
-  --text-dim: color-mix(in srgb, var(--color-text) 66%, transparent);
-  --text-faint: color-mix(in srgb, var(--color-text) 52%, transparent);
+  --text-dim: color-mix(in srgb, var(--color-text) 78%, transparent);
+  --text-faint: color-mix(in srgb, var(--color-text) 62%, transparent);
   --xxl: 1200px;
 
   /* --- card color system (single source of truth for every card and

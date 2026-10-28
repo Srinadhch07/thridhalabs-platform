@@ -119,7 +119,7 @@ export default function ContactPage() {
   const ogImage = useDefaultOgImage()
 
   usePageMeta({
-    title: 'Contact — Thridha Labs',
+    title: 'Contact Thridha Labs - AI Development & Custom Software Projects',
     description:
       "From a new digital idea to a business that needs a better online presence, let's explore what we can create together.",
     canonical: absolutePageUrl('/contact'),

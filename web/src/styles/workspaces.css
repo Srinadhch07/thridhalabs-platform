@@ -1,0 +1,272 @@
+/* ==========================================================================
+   Activity Workspaces (Programmes & Hackathons)
+   Individual participation only — one student owns their own progress updates
+   and deliverable per activity. Member workspace surfaces and the admin review
+   panel reuse the shared member/report/activity styles; this file only adds
+   what is specific to workspaces.
+   ========================================================================== */
+
+/* ---------- workspace layout ---------- */
+
+.workspace {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.workspace__progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.workspace__progress-track {
+  flex: 1;
+  min-width: 180px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-3);
+  overflow: hidden;
+}
+
+.workspace__progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: width var(--dur) var(--ease-out);
+}
+
+.workspace__progress-value {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---------- activity content blocks ---------- */
+
+.workspace__section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.workspace__section-title {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.workspace__text {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.workspace__list {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.workspace__resources {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.workspace__resource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.workspace__resource-label {
+  font-weight: 600;
+}
+
+.workspace__resource a {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- personal task checklist ---------- */
+
+.workspace__tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.workspace__task {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-1);
+}
+
+.workspace__task[data-completed='true'] {
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--border));
+}
+
+.workspace__task-body {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.workspace__task-title {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.workspace__task[data-completed='true'] .workspace__task-title {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.workspace__task-desc {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.workspace__task-due {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ---------- deliverable + update cards ---------- */
+
+.workspace__submission {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-2);
+}
+
+.workspace__submission-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.workspace__submission-meta {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.workspace__submission-links {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+}
+
+.workspace__submission-links a {
+  overflow-wrap: anywhere;
+}
+
+.workspace__submission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.workspace__required {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workspace__required-item {
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------- admin review panel ---------- */
+
+.workspace-review {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.workspace-review__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.workspace-review__feedback {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-1);
+}
+
+.workspace-review__row {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-2);
+}
+
+.workspace-review__row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.workspace-review__author {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.workspace-review__author-name {
+  font-weight: 600;
+}
+
+.workspace-review__author-meta {
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}

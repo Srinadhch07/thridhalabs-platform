@@ -492,13 +492,13 @@
     height: calc(100dvh - var(--header-height));
     max-height: calc(100vh - var(--header-height));
     max-height: calc(100dvh - var(--header-height));
-    z-index: calc(var(--z-hud) - 1);
+    z-index: 10000;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    padding: 0 max(18px, env(safe-area-inset-right))
-      max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+    padding: 0 max(16px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     background: var(--color-background);
     overflow: hidden;
     opacity: 0;
@@ -516,18 +516,20 @@
     overflow-x: hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    padding-top: 12px;
+    padding-top: var(--space-4);
   }
   .mobile-menu .public-nav__actions {
     flex: 0 0 auto;
     padding-top: var(--space-3);
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    gap: var(--space-2);
   }
   .mobile-menu.is-open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     transition-delay: 0s, 0s, 0s;
+    background: var(--color-background);
   }
   /* Solid panel means labels no longer compete with page content: raise
      contrast from the dim default to the full themed text color. */
@@ -543,8 +545,8 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    font-size: 15px;
-    letter-spacing: 0.03em;
+    font-size: 16px;
+    letter-spacing: 0.02em;
     border-top: 1px solid var(--frame-soft);
     min-width: 0;
   }
@@ -555,8 +557,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    min-height: 48px;
-    padding: 10px 4px;
+    min-height: 52px;
+    padding: 12px 4px;
     width: 100%;
   }
 }
@@ -628,7 +630,7 @@
   font-family: var(--sans);
   font-size: var(--fs-sm);
   text-align: left;
-  overflow: clip;
+  overflow-x: hidden;
 }
 
 /* ---------- shared page hero (inner pages) ---------- */
@@ -808,7 +810,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: var(--space-8) var(--space-6);
-  padding-block: var(--space-8);
+  padding-block: clamp(var(--space-6), 6vw, var(--space-8));
 }
 .public-footer__brand .public-brand {
   font-size: var(--fs-lg);
@@ -856,11 +858,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3) var(--space-6);
-  padding-block: var(--space-4);
+  padding-block: clamp(var(--space-3), 4vw, var(--space-4));
   border-top: 1px solid var(--frame-soft);
   font-family: var(--mono);
   font-size: var(--fs-xs);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
@@ -885,7 +887,7 @@
 .public-footer__legal > li + li::before,
 .public-footer__signature > li + li::before {
   content: '·';
-  margin: 0 var(--space-3);
+  margin-right: var(--space-2);
   color: var(--text-faint);
 }
 .public-footer__legal a {
@@ -1833,17 +1835,17 @@
   flex-direction: column;
   height: 100%;
   position: relative;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: transparent;
   overflow: hidden;
   color: var(--text-primary);
-  transition:    border-color var(--dur) var(--ease),    background var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease);
 }
 .project-card:hover {
-  border-color: var(--accent-glow);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--border));
   color: var(--text-primary);
-  background: var(--surface-hover);
+  background: transparent;
 }
 .project-card__body {
   display: flex;
@@ -1876,7 +1878,7 @@
   overflow: hidden;
 }
 .project-card__desc {
-  color: var(--text-secondary);
+  color: var(--text-dim);
   font-size: var(--fs-sm);
   line-height: 1.6;
   margin: 0;
@@ -2168,9 +2170,9 @@ img.client-tile__monogram {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: transparent;
   padding: var(--space-6);
 }
 .quote-card blockquote {
@@ -2811,13 +2813,13 @@ img.client-tile__monogram {
   gap: var(--space-6);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: transparent;
   padding: var(--space-6);
-  transition:    border-color var(--dur) var(--ease),    background var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease);
 }
 .opportunity-card:hover {
-  border-color: var(--accent-glow);
-  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--border));
+  background: transparent;
 }
 .opportunity-card__body {
   min-width: 0;
@@ -2839,8 +2841,8 @@ img.client-tile__monogram {
 .public-shell .state-card {
   max-width: 560px;
   margin: 0 auto;
-  background: var(--surface);
-  border-color: var(--border-strong);
+  background: transparent;
+  border-color: var(--border);
 }
 /* ---------- standalone state page (404 / maintenance) ----------
    The 404 route renders outside the public shell, so it owns its full-page
@@ -2861,8 +2863,8 @@ img.client-tile__monogram {
   max-width: none;
   margin: 0;
   text-align: center;
-  background: var(--surface);
-  border-color: var(--border-strong);
+  background: transparent;
+  border-color: var(--border);
 }
 .state-page .state-card .btn {
   margin-top: var(--space-4);
@@ -2899,23 +2901,45 @@ img.client-tile__monogram {
 }
   .public-footer__grid {
     grid-template-columns: 1fr;
-    gap: var(--space-7);
+    gap: var(--space-6);
+    padding-block: clamp(var(--space-5), 8vw, var(--space-7));
   
-}
+  }
+  .public-footer__title {
+    margin: 0 0 var(--space-3);
+  }
+  .public-footer__links,
+  .public-footer__contact {
+    gap: var(--space-2);
+  }
+  .public-footer__links a,
+  .public-footer__contact a,
+  .public-footer__contact li {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
   /* Mobile footer bar stacks the groups so long labels wrap inside their own
      block instead of being squeezed by the horizontal bar layout. */
   .public-footer__bar {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-3);
+    row-gap: var(--space-2);
+    column-gap: var(--space-4);
+    letter-spacing: 0.05em;
   }
   .public-footer__legal,
   .public-footer__signature {
-    row-gap: var(--space-2);
+    row-gap: var(--space-1);
+    column-gap: var(--space-2);
+  }
+  .public-footer__legal > li,
+  .public-footer__signature > li {
+    white-space: normal;
   }
   .public-footer__legal > li + li::before,
   .public-footer__signature > li + li::before {
-    margin: 0 var(--space-2);
+    margin-right: var(--space-2);
   }
   .section-head {
     align-items: flex-start;

@@ -32,6 +32,41 @@ export interface BriefRef {
   uploaded_at: string
 }
 
+/** A link shown to participants in the workspace. */
+export interface ActivityResource {
+  label: string
+  url: string
+}
+
+/** One personal checklist task inside an activity. */
+export interface ActivityTask {
+  id: string
+  title: string
+  description: string
+  due_date: string | null
+}
+
+/** Parts of the deliverable an activity expects participants to provide. */
+export type RequiredDeliverable =
+  | 'description'
+  | 'repository_url'
+  | 'demo_url'
+  | 'evidence_links'
+
+export const REQUIRED_DELIVERABLE_LABELS: Record<RequiredDeliverable, string> = {
+  description: 'Description',
+  repository_url: 'Repository URL',
+  demo_url: 'Demo URL',
+  evidence_links: 'Evidence links',
+}
+
+export const REQUIRED_DELIVERABLE_OPTIONS: RequiredDeliverable[] = [
+  'description',
+  'repository_url',
+  'demo_url',
+  'evidence_links',
+]
+
 /** Full admin view of an activity. */
 export interface AdminActivity {
   id: string
@@ -49,6 +84,12 @@ export interface AdminActivity {
   display_order: number
   roles_offered: string[]
   tags: string[]
+  objectives: string[]
+  instructions: string
+  requirements: string[]
+  resources: ActivityResource[]
+  tasks: ActivityTask[]
+  required_deliverables: RequiredDeliverable[]
   brief: BriefRef | null
   brief_history_count: number
   cancel_reason: string | null
@@ -82,6 +123,12 @@ export interface ActivityCreatePayload {
   display_order?: number
   roles_offered?: string[]
   tags?: string[]
+  objectives?: string[]
+  instructions?: string
+  requirements?: string[]
+  resources?: ActivityResource[]
+  tasks?: ActivityTask[]
+  required_deliverables?: RequiredDeliverable[]
   cancel_reason?: string | null
 }
 

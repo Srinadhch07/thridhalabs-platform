@@ -86,3 +86,19 @@ describe('default robots directives', () => {
     cleanup()
   })
 })
+
+describe('default og image fallback', () => {
+  it('uses page-specific image when provided', () => {
+    goto('/')
+    const cleanup = applyPageMeta({
+      title: 'x',
+      ogImage: 'https://example.com/custom.png',
+      ogImageAlt: 'Custom',
+    })
+    const ogImage = document.head.querySelector('meta[property="og:image"]')?.getAttribute('content')
+    const twitterImage = document.head.querySelector('meta[name="twitter:image"]')?.getAttribute('content')
+    expect(ogImage).toBe('https://example.com/custom.png')
+    expect(twitterImage).toBe('https://example.com/custom.png')
+    cleanup()
+  })
+})

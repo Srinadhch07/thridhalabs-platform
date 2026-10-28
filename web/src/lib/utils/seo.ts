@@ -1,14 +1,3 @@
-/**
- * SEO foundation — reusable per-page metadata.
- *
- * Owns title / description / canonical / Open Graph / Twitter / robots. The
- * canonical origin is domain-aware: it prefers the configured `VITE_SITE_URL`
- * production origin and otherwise falls back to a real (non-localhost) runtime
- * origin, refusing to publish localhost URLs. Sitemap, robots.txt and crawler
- * HTML are served by the backend (see `backend/app/api/routes/seo.py` and the
- * `/share` routes); JSON-LD is injected per page via `useJsonLd`.
- */
-
 import { useEffect } from 'react'
 import { env } from '../../app/config/env'
 import { useBranding } from '../../app/providers/BrandingProvider'
@@ -23,9 +12,9 @@ export interface PageMeta {
   ogImage?: string | null
   ogImageAlt?: string | null
   ogType?: string | null
-  /** og:url — defaults to `canonical` when provided. */
+  /** og:url - defaults to `canonical` when provided. */
   ogUrl?: string | null
-  /** Document robots directive — admin routes default to `noindex, nofollow`. */
+  /** Document robots directive - admin routes default to `noindex, nofollow`. */
   robots?: string | null
 }
 
@@ -88,6 +77,13 @@ function isPublicOrigin(origin: string | null | undefined): boolean {
  * only when it is not localhost. Returns `null` (rather than a localhost URL)
  * so callers omit canonical/OG URL tags instead of emitting incorrect ones.
  */
+
+/**
+ * Path prefixes that must never be indexed: admin and member tooling, first-run
+ * setup, and per-ID certificate verification documents (no search value, and
+ * they can leak the existence of a certificate).
+ */
+
 export function getSiteOrigin(): string | null {
   if (isPublicOrigin(env.siteUrl)) return env.siteUrl
   if (typeof window !== 'undefined' && isPublicOrigin(window.location?.origin)) {
@@ -95,12 +91,6 @@ export function getSiteOrigin(): string | null {
   }
   return null
 }
-
-/**
- * Path prefixes that must never be indexed: admin and member tooling, first-run
- * setup, and per-ID certificate verification documents (no search value, and
- * they can leak the existence of a certificate).
- */
 const NOINDEX_PREFIXES = ['/admin', '/member', '/setup', '/verify-certificate', '/verify-activity-certificate']
 
 function defaultRobotsForLocation(): string | null {
@@ -124,7 +114,7 @@ export function absolutePageUrl(path: string): string | null {
 }
 
 /**
- * Absolute URL for the Share button — unlike the canonical URL it is never
+ * Absolute URL for the Share button - unlike the canonical URL it is never
  * `null`: it prefers the configured production origin, then falls back to the
  * current runtime origin (including localhost). Sharing a page must always
  * work, even when no canonical production origin is configured for SEO.
@@ -199,6 +189,7 @@ export function applyPageMeta(meta: PageMeta): () => void {
   }
 }
 
+
 /** Hook that applies page metadata on mount and reverts it on unmount. */
 export function usePageMeta(meta: PageMeta): void {
   useEffect(() => {
@@ -214,13 +205,16 @@ export function useBrandingOgImage(): string | null {
   return id ? resolveMediaUrl(id, 'md') : null
 }
 
-/**
- * Default Open Graph image for non-entity pages (homepage, About, Projects
- * list, Clients, Testimonials, Contact, …): the always-large branded card from
- * the backend `/share/site/image` route, falling back to the configured
- * branding OG image when no canonical origin is configured (dev/preview).
- */
+/** Branding logo media id resolved through the public media route (admin-uploaded logo). */
+export function useBrandingLogoImage(): string | null {
+  const { data } = useBranding()
+  const id = data?.media?.logo ?? data?.media?.logo_light ?? data?.media?.logo_dark
+  return id ? resolveMediaUrl(id, 'md') : null
+}
+
+/** Default Open Graph image for non-entity pages. */
 export function useDefaultOgImage(): string | null {
   const brandingOgImage = useBrandingOgImage()
-  return absolutePageUrl(siteShareImagePath()) ?? brandingOgImage
+  const brandingLogoImage = useBrandingLogoImage()
+  return absolutePageUrl(siteShareImagePath()) ?? brandingOgImage ?? brandingLogoImage
 }

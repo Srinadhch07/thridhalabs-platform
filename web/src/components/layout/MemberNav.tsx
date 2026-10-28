@@ -29,7 +29,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: '/member', label: 'Overview', end: true, Icon: IconOverview },
   { to: '/member/works', label: 'Work Showcase', Icon: IconWorks },
-  { to: '/member/activities', label: 'Activities', Icon: IconActivities },
+  { to: '/member/activities', label: 'My Activities', Icon: IconActivities },
   { to: '/member/projects', label: 'My Projects', Icon: IconProjects },
   { to: '/member/contributions', label: 'Contributions', Icon: IconContributions },
   { to: '/member/certifications', label: 'Certifications', Icon: IconCertification },

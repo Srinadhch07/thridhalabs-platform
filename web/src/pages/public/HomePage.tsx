@@ -56,7 +56,7 @@ function HeroSection() {
       <motion.div className="shell hero-editorial hero-editorial--refined-a" variants={container} initial="hidden" animate="show">
         <motion.div variants={item}>
           <p className="hero-editorial__eyebrow hero-editorial__eyebrow--refined">
-            <span aria-hidden="true">[</span> LAB.LOG <span aria-hidden="true">]</span> &nbsp;|&nbsp; AI-FIRST TECHNOLOGY &amp; EXPERIMENTATION LAB
+            AI-FIRST TECHNOLOGY &amp; EXPERIMENTATION LAB
           </p>
         </motion.div>
 
@@ -87,7 +87,7 @@ function HeroSection() {
               </Link>
             </div>
             <p className="hero-editorial__microcopy">
-              <span aria-hidden="true">[</span> SYS.001 <span aria-hidden="true">]</span> Applied AI • Intelligent Systems • Practical Delivery
+              Applied AI • Intelligent Systems • Practical Delivery
             </p>
           </div>
         </motion.div>
@@ -108,7 +108,7 @@ export function HeroSectionA() {
       <motion.div className="shell hero-editorial hero-editorial--proto-a" variants={container} initial="hidden" animate="show">
         <motion.div variants={item}>
           <p className="hero-editorial__eyebrow hero-editorial__eyebrow--mono">
-            <span aria-hidden="true">[</span> LAB.LOG <span aria-hidden="true">]</span> :: AI-FIRST EXPLORATION
+            AI-FIRST EXPLORATION
           </p>
         </motion.div>
 
@@ -325,7 +325,7 @@ function PracticeSection() {
         <Reveal className="practice practice--refined">
           <div className="practice__intro">
             <p className="ed-head__label">
-              <span aria-hidden="true">[</span> CAPABILITIES <span aria-hidden="true">]</span>
+              CAPABILITIES
             </p>
             <h2 id="practice-title" className="ed-head__title ed-head__title--refined">
               Applied AI, built for real-world impact
@@ -349,7 +349,7 @@ function PracticeSection() {
               <li key={item.name} className="practice-item practice-item--refined">
                 <Reveal delay={index * 70}>
                   <span className="practice-item__index practice-item__index--refined" aria-hidden="true">
-                    SYS.{item.index}
+                    {item.index}
                   </span>
                   <div className="practice-item__body">
                     <span className="practice-item__name">{item.name}</span>
@@ -372,7 +372,7 @@ export function PracticeSectionA() {
         <Reveal className="practice practice--proto-a">
           <div className="practice__intro">
             <p className="ed-head__label ed-head__label--mono">
-              <span aria-hidden="true">[</span> SYSTEM MAP <span aria-hidden="true">]</span>
+              SYSTEM MAP
             </p>
             <h2 id="practice-title-a" className="ed-head__title ed-head__title--mono">
               R&amp;D → PROTOTYPE → DEPLOY
@@ -386,7 +386,7 @@ export function PracticeSectionA() {
               <li key={item.name} className="practice-item practice-item--proto-a">
                 <Reveal delay={index * 60}>
                   <span className="practice-item__index practice-item__index--mono" aria-hidden="true">
-                    SYS.{item.index}
+                    {item.index}
                   </span>
                   <div className="practice-item__body">
                     <span className="practice-item__name practice-item__name--mono">{item.name}</span>
@@ -645,9 +645,8 @@ function ClosingSection() {
 export default function HomePage() {
   const { data: settings } = useSiteSettings()
   const siteName = settings?.general.site_name || 'Thridha Labs'
-  const tagline = settings?.general.tagline || 'We experiment with intelligence.'
-  const description =
-    settings?.general.description || 'AI, software and ideas turned into things people can actually use.'
+  const description = settings?.general.description || 'Thridha Labs is an AI-first experimental technology lab offering web development services, AI application development, agentic AI systems, and custom software development.'
+    settings?.general.description || 'Thridha Labs is an AI-first experimental technology lab offering web development services, AI application development, agentic AI systems, and custom software development.'
 
   const projects = usePublicProjects({ sort: 'display_order', order: 'asc' })
   const clients = usePublicClients({ sort: 'display_order', order: 'asc' })
@@ -656,13 +655,13 @@ export default function HomePage() {
   const siteOgImage = absolutePageUrl(siteShareImagePath())
 
   usePageMeta({
-    title: `${siteName} — ${tagline}`,
+    title: siteName + ' - AI-first Technology Lab | Custom AI, Web Development & Agentic Systems',
     description,
     canonical: absolutePageUrl('/'),
-    ogTitle: settings?.seo?.seo_title || `${siteName} — ${tagline}`,
+    ogTitle: settings?.seo?.seo_title || (siteName + ' - AI-first Technology Lab | Custom AI, Web Development & Agentic Systems'),
     ogDescription: settings?.seo?.seo_description || description,
     ogImage: siteOgImage ?? brandingOgImage,
-    ogImageAlt: `${siteName} — ${tagline}`,
+    ogImageAlt: siteName + ' - AI-first Technology Lab',
   })
   useJsonLd([
     {

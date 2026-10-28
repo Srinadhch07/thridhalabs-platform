@@ -308,6 +308,12 @@
   border-color: color-mix(in srgb, var(--ok) 40%, transparent);
 }
 
+.chip--danger {
+  color: var(--err);
+  border-color: color-mix(in srgb, var(--err) 40%, transparent);
+}
+
+
 .chip--muted {
   color: var(--faint);
 }

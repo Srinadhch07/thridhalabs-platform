@@ -3,11 +3,19 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
 import { getPublicLegal, type LegalPublicItem } from '../../features/legal/api'
+import { absolutePageUrl, useDefaultOgImage, usePageMeta } from '../../lib/utils/seo'
 
 export default function LegalPage({ slug, title }: { slug: 'privacy-policy' | 'terms-and-conditions' | 'cookie-policy'; title: string }) {
   const [doc, setDoc] = useState<LegalPublicItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const ogImage = useDefaultOgImage()
+  usePageMeta({
+    title: title + ' - Thridha Labs',
+    description: title + ' for Thridha Labs - an AI-first experimental technology lab.',
+    canonical: absolutePageUrl('/' + slug),
+    ogImage,
+  })
 
   useEffect(() => {
     let mounted = true
@@ -34,11 +42,6 @@ export default function LegalPage({ slug, title }: { slug: 'privacy-policy' | 't
         <header className="page-hero__header">
           <p className="page-hero__kicker">Legal</p>
           <h1 className="page-hero__title">{doc?.title || title}</h1>
-          {(doc?.published_at || doc?.updated_at) && (
-            <p className="page-hero__meta">
-              {doc?.published_at ? `Published: ${new Date(doc.published_at).toLocaleDateString()}` : `Updated: ${new Date(doc?.updated_at || '').toLocaleDateString()}`}
-            </p>
-          )}
         </header>
       </div>
       <div className="shell" style={{ paddingBlock: 'clamp(32px, 6vw, 64px)' }}>

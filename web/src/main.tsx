@@ -11,6 +11,7 @@ import './styles/member.css'
 import './styles/works.css'
 import './styles/activities.css'
 import './styles/reports.css'
+import './styles/workspaces.css'
 
 const container = document.getElementById('root')
 if (!container) {
