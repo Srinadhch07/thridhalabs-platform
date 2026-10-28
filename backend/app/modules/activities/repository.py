@@ -18,7 +18,9 @@ from app.models.activity import (
     Activity,
     ActivityBriefVersion,
     ActivityParticipation,
+    ActivityResource,
     ActivityStatus,
+    ActivityTask,
     ActivityType,
     ParticipationSource,
     ParticipationStatus,
@@ -58,6 +60,14 @@ def _to_activity(doc: dict) -> Activity:
         display_order=doc.get("display_order", 0),
         roles_offered=doc.get("roles_offered", []),
         tags=doc.get("tags", []),
+        objectives=doc.get("objectives", []),
+        instructions=doc.get("instructions", ""),
+        requirements=doc.get("requirements", []),
+        resources=[
+            ActivityResource(**item) for item in (doc.get("resources") or [])
+        ],
+        tasks=[ActivityTask(**item) for item in (doc.get("tasks") or [])],
+        required_deliverables=doc.get("required_deliverables", []),
         brief=_brief(doc.get("brief")),
         brief_versions=[
             ActivityBriefVersion(**item) for item in doc.get("brief_versions", [])
@@ -86,6 +96,7 @@ def _to_participation(doc: dict) -> ActivityParticipation:
             doc.get("source", ParticipationSource.INVITED.value)
         ),
         note=doc.get("note"),
+        completed_task_ids=doc.get("completed_task_ids", []),
         invited_at=doc.get("invited_at"),
         responded_at=doc.get("responded_at"),
         confirmed_at=doc.get("confirmed_at"),
@@ -115,6 +126,12 @@ async def insert_activity(*, title: str, slug: str, **fields) -> Activity:
         "display_order": fields.get("display_order", 0),
         "roles_offered": fields.get("roles_offered", []),
         "tags": fields.get("tags", []),
+        "objectives": fields.get("objectives", []),
+        "instructions": fields.get("instructions", ""),
+        "requirements": fields.get("requirements", []),
+        "resources": fields.get("resources", []),
+        "tasks": fields.get("tasks", []),
+        "required_deliverables": fields.get("required_deliverables", []),
         "brief": None,
         "brief_versions": [],
         "cancel_reason": None,
@@ -243,6 +260,7 @@ async def insert_participation(**fields) -> ActivityParticipation:
         "status": fields.get("status", ParticipationStatus.INVITED.value),
         "source": fields.get("source", ParticipationSource.INVITED.value),
         "note": fields.get("note"),
+        "completed_task_ids": fields.get("completed_task_ids", []),
         "invited_at": fields.get("invited_at"),
         "responded_at": None,
         "confirmed_at": fields.get("confirmed_at"),

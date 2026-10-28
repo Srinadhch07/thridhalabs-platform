@@ -65,6 +65,12 @@ _NULLABLE_UPDATE_KEYS = {
     "description",
     "roles_offered",
     "tags",
+    "objectives",
+    "instructions",
+    "requirements",
+    "resources",
+    "tasks",
+    "required_deliverables",
 }
 
 _CONFIRMED = ParticipationStatus.CONFIRMED.value
@@ -677,6 +683,12 @@ def to_admin_response(
         display_order=activity.display_order,
         roles_offered=activity.roles_offered,
         tags=activity.tags,
+        objectives=list(activity.objectives),
+        instructions=activity.instructions,
+        requirements=list(activity.requirements),
+        resources=[item.model_dump() for item in activity.resources],
+        tasks=[item.model_dump() for item in activity.tasks],
+        required_deliverables=list(activity.required_deliverables),
         brief=brief,
         brief_history_count=len(activity.brief_versions),
         cancel_reason=activity.cancel_reason,

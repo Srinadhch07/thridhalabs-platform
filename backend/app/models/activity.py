@@ -76,6 +76,30 @@ class ActivityPresentationStatus(str, Enum):
     ARCHIVED = "archived"
 
 
+class ActivityResource(BaseModel):
+    """One external resource linked from an activity (docs, repos, decks)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    label: str
+    url: str
+
+
+class ActivityTask(BaseModel):
+    """One milestone/task a participant is expected to complete.
+
+    Tasks are configured per activity by an admin; each participant tracks
+    their *own* completion of them (see `ActivityParticipation.completed_task_ids`).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    title: str
+    description: str = ""
+    due_date: date | None = None
+
+
 class ActivityBriefVersion(BaseModel):
     """One immutable revision of an activity's PDF brief.
 
@@ -116,6 +140,16 @@ class Activity(BaseModel):
     display_order: int = 0
     roles_offered: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
+    # Workspace content — optional, additive. Existing activities keep working
+    # with empty values; the member workspace only renders what is configured.
+    objectives: list[str] = Field(default_factory=list)
+    instructions: str = ""
+    requirements: list[str] = Field(default_factory=list)
+    resources: list[ActivityResource] = Field(default_factory=list)
+    tasks: list[ActivityTask] = Field(default_factory=list)
+    # Which deliverable parts the participant must provide (see the
+    # `activity_submissions` module for the accepted values).
+    required_deliverables: list[str] = Field(default_factory=list)
     # Current brief (convenience pointer) plus the full append-only history.
     brief: ActivityBriefVersion | None = None
     brief_versions: list[ActivityBriefVersion] = Field(default_factory=list)
@@ -173,6 +207,9 @@ class ActivityParticipation(BaseModel):
     status: ParticipationStatus = ParticipationStatus.INVITED
     source: ParticipationSource = ParticipationSource.INVITED
     note: str | None = None  # admin-only note
+    # Per-participant completion of the activity's own tasks (personal
+    # progress — participation is individual, never shared).
+    completed_task_ids: list[str] = Field(default_factory=list)
     invited_at: datetime | None = None
     responded_at: datetime | None = None
     confirmed_at: datetime | None = None

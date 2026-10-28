@@ -1,4 +1,4 @@
-"""FastAPI application entry point for the Thridha Labs platform."""
+﻿"""FastAPI application entry point for the Thridha Labs platform."""
 
 from __future__ import annotations
 
@@ -24,6 +24,15 @@ from app.modules.ai.router import router as ai_summaries_router
 from app.modules.ai.settings_router import router as ai_settings_router
 from app.modules.reports.admin_router import router as reports_admin_router
 from app.modules.reports.router import router as reports_router
+from app.modules.activity_submissions.admin_router import (
+    router as activity_submissions_admin_router,
+)
+from app.modules.activity_submissions.member_router import (
+    router as activity_workspaces_member_router,
+)
+from app.modules.activity_submissions.member_router import (
+    submissions_router as activity_submissions_member_router,
+)
 from app.modules.branding.public import router as branding_public_router
 from app.modules.branding.router import router as branding_router
 from app.modules.careers.public import router as careers_public_router
@@ -84,20 +93,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     ready = await get_mongo().connect(settings)
     if ready:
-        log.info("MongoDB reachable — database '%s'", settings.MONGO_DB_NAME)
+        log.info("MongoDB reachable â€” database '%s'", settings.MONGO_DB_NAME)
         # Indexes (e.g. admins.email unique) are created at startup; a failure
         # here breaks account uniqueness guarantees, so it fails fast.
         await ensure_indexes()
     else:
         log.warning(
-            "MongoDB not reachable at startup — /api/health/ready will report degraded"
+            "MongoDB not reachable at startup â€” /api/health/ready will report degraded"
         )
 
     # Fail fast on a misconfigured storage provider (e.g. S3 without AWS_*).
     try:
         storage = get_storage_provider()
     except ConfigurationError as exc:
-        log.error("Invalid storage configuration — refusing to start: %s", exc)
+        log.error("Invalid storage configuration â€” refusing to start: %s", exc)
         raise
     log.info("Storage provider initialised (mode=%s)", storage.mode)
 
@@ -149,6 +158,9 @@ def create_app() -> FastAPI:
     # Project progress reports: member submission + admin review.
     app.include_router(reports_router, prefix=settings.API_PREFIX)
     app.include_router(reports_admin_router, prefix=settings.API_PREFIX)
+    app.include_router(activity_submissions_member_router, prefix=settings.API_PREFIX)
+    app.include_router(activity_workspaces_member_router, prefix=settings.API_PREFIX)
+    app.include_router(activity_submissions_admin_router, prefix=settings.API_PREFIX)
     # Groq AI work summaries: admin-only settings + draft/publish workflow.
     app.include_router(ai_settings_router, prefix=settings.API_PREFIX)
     app.include_router(ai_summaries_router, prefix=settings.API_PREFIX)
@@ -183,7 +195,7 @@ def create_app() -> FastAPI:
     # Top-level SEO documents (no /api prefix).
     app.include_router(seo_router)
     # Top-level social share documents + generated preview images (no /api
-    # prefix) — routed to crawlers by the reverse proxy.
+    # prefix) â€” routed to crawlers by the reverse proxy.
     app.include_router(share_router)
     register_exception_handlers(app)
     return app
@@ -204,3 +216,4 @@ if __name__ == "__main__":  # pragma: no cover
         port=8000,
         reload=get_settings().DEBUG,
     )
+

@@ -129,6 +129,7 @@ async def client():
                 "activity_certificate_templates",
                 "activities", "activity_participations",
                 "progress_reports",
+                "activity_submissions",
                 "ai_settings", "ai_summaries",
             ):
                 await db[collection].delete_many({})

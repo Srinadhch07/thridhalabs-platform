@@ -12,8 +12,8 @@ from dataclasses import dataclass, field
 
 SITE_NAME = "Thridha Labs"
 DEFAULT_DESCRIPTION = (
-    "Thridha Labs is a technology and AI experimentation lab. AI, software and "
-    "ideas turned into things people can actually use."
+    "Thridha Labs is an AI-first experimental technology lab building custom web "
+    "applications, AI solutions, agentic AI systems, and intelligent automation."
 )
 
 # Social platforms truncate around here; keep previews tidy and predictable.

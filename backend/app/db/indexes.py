@@ -258,10 +258,44 @@ async def ensure_indexes(force: bool = False) -> None:
         [("status", pymongo.ASCENDING), ("updated_at", pymongo.DESCENDING)]
     )
 
+    # Activity submissions (programmes/hackathons - individual participation only).
+    # - One DELIVERABLE per (activity, member): enforced by a partial unique
+    #   index, so progress updates (many per member) stay possible.
+    # - client_request_id is the idempotency guard for retried submits.
+    await db.activity_submissions.create_index(
+        [("activity_id", pymongo.ASCENDING), ("member_id", pymongo.ASCENDING)],
+        unique=True,
+        partialFilterExpression={"kind": "deliverable"},
+    )
+    await db.activity_submissions.create_index(
+        [
+            ("member_id", pymongo.ASCENDING),
+            ("client_request_id", pymongo.ASCENDING),
+        ],
+        unique=True,
+        partialFilterExpression={"client_request_id": {"$type": "string"}},
+    )
+    await db.activity_submissions.create_index(
+        [("activity_id", pymongo.ASCENDING), ("status", pymongo.ASCENDING)]
+    )
+    await db.activity_submissions.create_index(
+        [
+            ("activity_id", pymongo.ASCENDING),
+            ("member_id", pymongo.ASCENDING),
+            ("kind", pymongo.ASCENDING),
+        ]
+    )
+    await db.activity_submissions.create_index(
+        [("member_id", pymongo.ASCENDING), ("submitted_at", pymongo.DESCENDING)]
+    )
+    await db.activity_submissions.create_index(
+        [("status", pymongo.ASCENDING), ("submitted_at", pymongo.DESCENDING)]
+    )
+
     _indexes_ready = True
     log.info(
         "Database indexes ensured (admins, media, settings, branding, clients, "
         "projects, testimonials, careers, members, works, certifications, "
         "certificates, activity certificates, activities, progress reports, "
-        "ai summaries)"
+        "activity submissions, ai summaries)"
     )

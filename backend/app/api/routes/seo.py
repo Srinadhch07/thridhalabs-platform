@@ -127,6 +127,12 @@ async def robots() -> Response:
             "Allow: /",
             "Disallow: /admin",
             "Disallow: /admin/*",
+            "Disallow: /member",
+            "Disallow: /member/*",
+            "Disallow: /verify-certificate",
+            "Disallow: /verify-certificate/*",
+            "Disallow: /verify-activity-certificate",
+            "Disallow: /verify-activity-certificate/*",
             f"Sitemap: {_absolute(base, '/sitemap.xml')}",
             "",
         ]

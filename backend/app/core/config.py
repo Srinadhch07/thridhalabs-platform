@@ -94,7 +94,7 @@ class Settings(BaseSettings):
     EMAIL_MOCK: bool = False
 
     # --- Frontend ---
-    FRONTEND_URL: str = ""
+    FRONTEND_URL: str = "https://thridhalabs.in"
 
     # --- Certificates ---
     # Canonical public origin used to build the certificate verification URL that
