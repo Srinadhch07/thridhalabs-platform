@@ -74,18 +74,11 @@ def _decode_cover(data: bytes) -> Image.Image | None:
 
 
 def _fallback_canvas(accent: tuple[int, int, int]) -> Image.Image:
-    """A branded dark canvas with a soft diagonal accent wash."""
-    canvas = Image.new("RGB", (PREVIEW_WIDTH, PREVIEW_HEIGHT), _DEFAULT_BACKGROUND)
+    """A branded canvas with a clean white/premium background."""
+    canvas = Image.new("RGB", (PREVIEW_WIDTH, PREVIEW_HEIGHT), (255, 255, 255))
     draw = ImageDraw.Draw(canvas)
-    tint = tuple(round(7 + (channel - 7) * 0.32) for channel in accent)
-    for x in range(PREVIEW_WIDTH):
-        # Diagonal-ish wash: brighter toward the top-right, fading to the base.
-        weight = max(0.0, 1.0 - (x / PREVIEW_WIDTH))
-        colour = tuple(
-            round(_DEFAULT_BACKGROUND[i] + (tint[i] - _DEFAULT_BACKGROUND[i]) * weight)
-            for i in range(3)
-        )
-        draw.line([(x, 0), (x, PREVIEW_HEIGHT)], fill=colour)
+    # Subtle accent accent line at bottom
+    draw.rectangle([0, PREVIEW_HEIGHT - 4, PREVIEW_WIDTH, PREVIEW_HEIGHT], fill=accent)
     return canvas
 
 
@@ -142,19 +135,35 @@ def render_preview_image(
     background: bytes | None = None,
     accent: str | None = None,
 ) -> bytes:
-    """Render a 1200x630 JPEG preview. Always returns decodable JPEG bytes.
-
-    With a usable `background` the image is the hero: it fills the frame with a
-    light overall scrim plus a stronger bottom band so bottom-anchored text
-    stays legible without hiding the actual photo/cover. Without one, a branded
-    canvas is generated instead.
-    """
-    accent_rgb = _hex_to_rgb(accent, _DEFAULT_ACCENT)
+    """Render a 1200x630 JPEG preview."""
+    accent_rgb = _hex_to_rgb(accent, (95, 208, 192))
 
     decoded = _decode_cover(background) if background else None
     if decoded is not None:
-        # Keep the actual image visible: a faint full-frame wash only takes the
-        # edge off, and a bottom-only gradient carries the text band.
+        # If it's likely a logo (square/transparent style), compose centered on white
+        try:
+            if decoded.width <= 512 and decoded.height <= 512:
+                canvas = Image.new("RGB", (PREVIEW_WIDTH, PREVIEW_HEIGHT), (255, 255, 255))
+                logo = decoded.copy().convert("RGBA")
+                max_logo_h = 280
+                scale = min(max_logo_h / logo.height, 520 / logo.width)
+                if scale < 1.0:
+                    logo = logo.resize((int(logo.width * scale), int(logo.height * scale)), Image.Resampling.LANCZOS)
+                else:
+                    scale = max_logo_h / logo.height
+                    if logo.width * scale > 520:
+                        scale = 520 / logo.width
+                    logo = logo.resize((int(logo.width * scale), int(logo.height * scale)), Image.Resampling.LANCZOS)
+                x = (PREVIEW_WIDTH - logo.width) // 2
+                y = (PREVIEW_HEIGHT - logo.height) // 2
+                canvas.paste(logo, (x, y), logo)
+                draw = ImageDraw.Draw(canvas)
+                draw.rectangle([0, PREVIEW_HEIGHT - 4, PREVIEW_WIDTH, PREVIEW_HEIGHT], fill=accent_rgb)
+                buffer = io.BytesIO()
+                canvas.save(buffer, format="JPEG", quality=_JPEG_QUALITY, optimize=True)
+                return buffer.getvalue()
+        except Exception:
+            pass
         canvas = _scrim(decoded, top_alpha=24, bottom_alpha=210)
     else:
         canvas = _fallback_canvas(accent_rgb)
@@ -165,7 +174,6 @@ def render_preview_image(
     subtitle_font = _font(32)
     small_font = _font(28)
 
-    # Top accent bar + kicker.
     draw.rectangle([_PADDING, _PADDING, _PADDING + 56, _PADDING + 6], fill=accent_rgb)
     if kicker:
         draw.text(
@@ -193,14 +201,14 @@ def render_preview_image(
 
     y = block_top
     for line in title_lines:
-        draw.text((_PADDING, y), line, font=title_font, fill=_TEXT_PRIMARY)
+        draw.text((_PADDING, y), line, font=title_font, fill=(15, 16, 38))
         y += title_font.size + 12
     y += gap
     for line in subtitle_lines:
-        draw.text((_PADDING, y), line, font=subtitle_font, fill=_TEXT_MUTED)
+        draw.text((_PADDING, y), line, font=subtitle_font, fill=(107, 111, 133))
         y += subtitle_font.size + 10
 
-    draw.text((_PADDING, footer_y), footer_text, font=small_font, fill=_TEXT_MUTED)
+    draw.text((_PADDING, footer_y), footer_text, font=small_font, fill=(107, 111, 133))
 
     buffer = io.BytesIO()
     canvas.save(buffer, format="JPEG", quality=_JPEG_QUALITY, optimize=True)

@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../app/providers/SiteSettingsProvider'
 import { useBranding } from '../../app/providers/BrandingProvider'
-import { resolveMediaUrl } from '../../lib/utils/mediaUrl'
+import { getDefaultLogoUrl, resolveMediaUrl } from '../../lib/utils/mediaUrl'
 import { Navigation } from './Navigation'
 
 function brandMark(siteName: string) {
@@ -24,7 +24,10 @@ export function Header() {
   const { data: branding } = useBranding()
   const siteName = settings?.general.site_name || 'Thridha Labs'
   const headerRef = useRef<HTMLElement | null>(null)
-  const logo = resolveMediaUrl(branding?.media.logo, 'thumb') || resolveMediaUrl(branding?.media.logo_light ?? branding?.media.logo_dark, 'thumb')
+  const logo =
+    resolveMediaUrl(branding?.media.logo, 'thumb') ||
+    resolveMediaUrl(branding?.media.logo_light ?? branding?.media.logo_dark, 'thumb') ||
+    getDefaultLogoUrl()
 
   useEffect(() => {
     const headerElement = headerRef.current

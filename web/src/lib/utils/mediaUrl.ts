@@ -32,6 +32,13 @@ function resolvePath(url: string): string {
   return `${apiOrigin()}${url}`
 }
 
+/**
+ * Default branding asset (thridhalabs_logo).
+ */
+export function getDefaultLogoUrl(): string {
+  return resolvePath('/branding/default/logo.png')
+}
+
 /** Turn any backend/raw media path (or absolute URL) into a usable URL. */
 export function absolutize(url: string | null | undefined): string | null {
   if (!url) return null

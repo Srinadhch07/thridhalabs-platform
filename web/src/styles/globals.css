@@ -322,6 +322,128 @@ code,
 
 /* --- loading / state components --- */
 
+.lab-boot {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #0f1026;
+  font-family: var(--mono);
+  z-index: 10000;
+}
+
+.lab-boot__inner {
+  width: min(420px, calc(100vw - 2rem));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.lab-boot__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.lab-boot__mark {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #0f1026;
+}
+
+.lab-boot__status {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6b6f85;
+}
+
+.lab-boot__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.lab-boot__progress {
+  width: 100%;
+  height: 2px;
+  background: #e5e7ef;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.lab-boot__progress-bar {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, rgba(95, 208, 192, 0) 0%, #5fd0c0 50%, rgba(95, 208, 192, 0) 100%);
+  animation: lab-boot-slide 1.6s ease-in-out infinite;
+}
+
+.lab-boot__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.lab-boot__label {
+  color: #6b6f85;
+}
+
+.lab-boot__dots {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5fd0c0;
+  box-shadow: 0 0 0 6px rgba(95, 208, 192, 0.12);
+  animation: lab-boot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes lab-boot-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(60%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes lab-boot-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-boot__progress-bar {
+    animation: none;
+    width: 100%;
+    background: #5fd0c0;
+  }
+  .lab-boot__dots {
+    animation: none;
+  }
+}
+
 .loader {
   display: flex;
   align-items: center;

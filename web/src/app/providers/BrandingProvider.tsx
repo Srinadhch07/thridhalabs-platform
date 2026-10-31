@@ -9,7 +9,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react'
 import { getPublicBranding } from '../../features/branding/api'
 import { applyBranding } from '../../lib/utils/brandingTheme'
-import { resolveMediaUrl } from '../../lib/utils/mediaUrl'
+import { getDefaultLogoUrl, resolveMediaUrl } from '../../lib/utils/mediaUrl'
 import type { PublicBranding } from '../../types/branding'
 
 export type BrandingStatus = 'loading' | 'success' | 'error'
@@ -51,12 +51,12 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     [status, data, error, reload],
   )
 
-  // Favicon is part of the brand (runtime-driven); the link tag is created on
-  // first use and reused on rebrand, so an image URL is always applied. The
-  // backend guarantees public media resolution for a known media id.
+  // Favicon is part of the brand (runtime-driven); priority: admin favicon -> admin logo -> default
   useEffect(() => {
-    if (!data?.media.favicon) return
-    const href = resolveMediaUrl(data.media.favicon, 'thumb')
+    const href =
+      resolveMediaUrl(data?.media.favicon, 'thumb') ||
+      resolveMediaUrl(data?.media.logo || data?.media.logo_light || data?.media.logo_dark, 'thumb') ||
+      getDefaultLogoUrl()
     if (!href) return
     let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']")
     if (!link) {
@@ -65,6 +65,13 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       document.head.appendChild(link)
     }
     link.href = href
+    let apple = document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']")
+    if (!apple) {
+      apple = document.createElement('link')
+      apple.rel = 'apple-touch-icon'
+      document.head.appendChild(apple)
+    }
+    apple.href = href
   }, [data])
 
   return <BrandingContext.Provider value={value}>{children}</BrandingContext.Provider>

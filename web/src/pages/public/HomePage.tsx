@@ -26,7 +26,8 @@ import { ErrorState } from '../../components/ui/ErrorState'
 import { usePublicClients } from '../../features/clients/hooks'
 import { usePublicProjects } from '../../features/projects/hooks'
 import { usePublicTestimonials } from '../../features/testimonials/hooks'
-import { usePageMeta, useBrandingOgImage, absolutePageUrl, siteShareImagePath } from '../../lib/utils/seo'
+import { usePageMeta, useBrandingOgImage, useBrandingLogoImage, absolutePageUrl, siteShareImagePath } from '../../lib/utils/seo'
+import { getDefaultLogoUrl } from '../../lib/utils/mediaUrl'
 import { useJsonLd } from '../../lib/hooks/useJsonLd'
 import type { PublicClient, PublicProject, PublicTestimonial } from '../../types/content'
 
@@ -646,12 +647,12 @@ export default function HomePage() {
   const { data: settings } = useSiteSettings()
   const siteName = settings?.general.site_name || 'Thridha Labs'
   const description = settings?.general.description || 'Thridha Labs is an AI-first experimental technology lab offering web development services, AI application development, agentic AI systems, and custom software development.'
-    settings?.general.description || 'Thridha Labs is an AI-first experimental technology lab offering web development services, AI application development, agentic AI systems, and custom software development.'
 
   const projects = usePublicProjects({ sort: 'display_order', order: 'asc' })
   const clients = usePublicClients({ sort: 'display_order', order: 'asc' })
   const testimonials = usePublicTestimonials({ sort: 'display_order', order: 'asc' })
   const brandingOgImage = useBrandingOgImage()
+  const brandingLogoImage = useBrandingLogoImage()
   const siteOgImage = absolutePageUrl(siteShareImagePath())
 
   usePageMeta({
@@ -660,7 +661,7 @@ export default function HomePage() {
     canonical: absolutePageUrl('/'),
     ogTitle: settings?.seo?.seo_title || (siteName + ' - AI-first Technology Lab | Custom AI, Web Development & Agentic Systems'),
     ogDescription: settings?.seo?.seo_description || description,
-    ogImage: siteOgImage ?? brandingOgImage,
+    ogImage: siteOgImage ?? brandingOgImage ?? brandingLogoImage ?? getDefaultLogoUrl(),
     ogImageAlt: siteName + ' - AI-first Technology Lab',
   })
   useJsonLd([
@@ -693,7 +694,7 @@ export default function HomePage() {
   const sortedProjects = [...(projects.data?.items ?? [])].sort(
     (a, b) => Number(b.featured) - Number(a.featured) || a.display_order - b.display_order,
   )
-  const selected = sortedProjects.slice(0, 5)
+  const selected = sortedProjects.filter((project) => project.featured === true).slice(0, 5)
 
   return (
     <>

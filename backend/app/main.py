@@ -35,6 +35,7 @@ from app.modules.activity_submissions.member_router import (
 )
 from app.modules.branding.public import router as branding_public_router
 from app.modules.branding.router import router as branding_router
+from app.modules.branding_defaults.router import router as branding_defaults_router
 from app.modules.careers.public import router as careers_public_router
 from app.modules.careers.router import router as careers_router
 from app.modules.certifications.admin_router import router as certifications_admin_router
@@ -194,8 +195,10 @@ def create_app() -> FastAPI:
 
     # Top-level SEO documents (no /api prefix).
     app.include_router(seo_router)
+    # Default branding assets (no /api prefix) - public, cached.
+    app.include_router(branding_defaults_router)
     # Top-level social share documents + generated preview images (no /api
-    # prefix) â€” routed to crawlers by the reverse proxy.
+    # prefix) �?" routed to crawlers by the reverse proxy.
     app.include_router(share_router)
     register_exception_handlers(app)
     return app

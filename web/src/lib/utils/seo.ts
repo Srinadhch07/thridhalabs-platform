@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { env } from '../../app/config/env'
 import { useBranding } from '../../app/providers/BrandingProvider'
-import { resolveMediaUrl } from './mediaUrl'
+import { getDefaultLogoUrl, resolveMediaUrl } from './mediaUrl'
 
 export interface PageMeta {
   title?: string | null
@@ -216,5 +216,7 @@ export function useBrandingLogoImage(): string | null {
 export function useDefaultOgImage(): string | null {
   const brandingOgImage = useBrandingOgImage()
   const brandingLogoImage = useBrandingLogoImage()
-  return absolutePageUrl(siteShareImagePath()) ?? brandingOgImage ?? brandingLogoImage
+  const defaultLogo = resolveMediaUrl(getDefaultLogoUrl() as any, 'md') || getDefaultLogoUrl()
+  // Prefer share image (composed) if we can resolve site origin; else admin logo; else default logo
+  return absolutePageUrl(siteShareImagePath()) ?? brandingOgImage ?? brandingLogoImage ?? defaultLogo
 }

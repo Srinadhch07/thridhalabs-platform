@@ -196,30 +196,29 @@ async def work_payload(request: Request, member_id: str, slug: str) -> SharePayl
 async def _branding_media_id() -> str | None:
     try:
         branding = await branding_service.get_branding()
-        return branding.media.og_image
+        # Priority: admin og_image, else admin logo variants for social sharing
+        return branding.media.og_image or branding.media.logo or branding.media.logo_light or branding.media.logo_dark
     except Exception:  # branding is best-effort presentation data
-        log.warning("Branding OG image unavailable for the site card")
+        log.warning("Branding media unavailable for the site card")
         return None
 
 
 async def site_payload(request: Request) -> SharePayload:
     """The branded general-purpose card for the homepage and non-entity pages.
 
-    Hero image: the admin-configured branding OG image when present, otherwise
-    the generated branded canvas — so an always-large, always-branded default
-    preview exists for every general Thridha Labs URL.
+    Hero image priority: admin og_image/logo, else default thridhalabs logo asset.
     """
     base = _public_base(request)
     card = ShareCard(
         kind="site",
-        title=clean_title("Thridha Labs — AI & software experimentation lab"),
+        title=clean_title("Thridha Labs - AI & software experimentation lab"),
         description=(
             "Thridha Labs is a technology and AI experimentation lab. AI, "
             "software and ideas turned into things people can actually use."
         ),
         canonical_url=f"{base}/",
         image_url=f"{base}/share/site/image",
-        image_alt="Thridha Labs — AI and software experimentation lab",
+        image_alt="Thridha Labs - AI and software experimentation lab",
         og_type="website",
         kicker="Thridha Labs",
         subtitle=None,
@@ -234,8 +233,18 @@ async def render(payload: SharePayload) -> bytes:
     background = payload.background
     if background is None and payload.branded_media_id:
         background = await _background_from_id(payload.branded_media_id)
+    # Fallback to default logo if nothing else available
+    if background is None and payload.card.kind == "site":
+        try:
+            from app.modules.branding_defaults import service as branding_defaults_service
+
+            bg = branding_defaults_service.get_default_logo_bytes()
+            if bg:
+                background = bg
+        except Exception:
+            pass
     return render_preview_image(
-        title=clean_title(payload.card.title).replace(" — Thridha Labs", ""),
+        title=clean_title(payload.card.title).replace(" - Thridha Labs", "").replace(" — Thridha Labs", ""),
         kicker=payload.card.kicker,
         subtitle=payload.card.subtitle,
         footer=payload.card.footer,
