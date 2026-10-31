@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSanitize from 'rehype-sanitize'
@@ -42,7 +42,6 @@ export default function AdminLegalPagesPage() {
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string } | null>(null)
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
-  const switchingRef = useRef(false)
 
   const dirty = useMemo(() => {
     if (!doc) return false
@@ -86,10 +85,6 @@ export default function AdminLegalPagesPage() {
   }, [])
 
   useEffect(() => {
-    if (switchingRef.current) {
-      switchingRef.current = false
-      return
-    }
     void loadDoc(activeSlug)
   }, [activeSlug])
 
@@ -99,7 +94,6 @@ export default function AdminLegalPagesPage() {
       const confirmed = window.confirm('You have unsaved changes. Switch documents without saving?')
       if (!confirmed) return
     }
-    switchingRef.current = true
     setActiveSlug(slug)
   }
 
@@ -190,7 +184,7 @@ export default function AdminLegalPagesPage() {
           </div>
         </div>
         <div className="legal-admin__actions">
-          <button type="button" className="btn btn--ghost btn--sm" onClick={saveDraft} disabled={busy || !doc || !dirty} aria-busy={saving}>
+          <button type="button" className="btn btn--ghost btn--sm" onClick={saveDraft} disabled={busy || !doc} aria-busy={saving}>
             {saving ? 'Saving...' : 'Save Draft'}
           </button>
           <button type="button" className="btn btn--primary btn--sm" onClick={publish} disabled={busy || !doc} aria-busy={publishing}>
